@@ -346,7 +346,10 @@ const server = http.createServer(async (req, res) => {
       if (['POST', 'PUT', 'DELETE'].includes(req.method)) {
         // block cross-site requests
         const origin = req.headers.origin;
-        if (origin && new URL(origin).host !== req.headers.host) return send(res, 403, { error: 'bad_origin' });
+        // behind a proxy (e.g. GitHub Codespaces) the public host arrives in X-Forwarded-Host;
+        // browsers can't set that header on cross-site requests, so the check stays safe
+        const allowed = [req.headers.host, ...String(req.headers['x-forwarded-host'] || '').split(',').map(s => s.trim())].filter(Boolean);
+        if (origin && !allowed.includes(new URL(origin).host)) return send(res, 403, { error: 'bad_origin' });
       }
       return await api(req, res, url);
     }

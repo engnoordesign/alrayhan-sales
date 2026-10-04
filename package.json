@@ -1,0 +1,8 @@
+{
+  "name": "alrayhan-sales-repo",
+  "private": true,
+  "scripts": {
+    "start": "node alrayhan-sales/server.js"
+  },
+  "engines": { "node": ">=18" }
+}
