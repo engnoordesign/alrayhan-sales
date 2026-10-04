@@ -26,6 +26,8 @@ function checkPassword(password, user) {
   return crypto.timingSafeEqual(Buffer.from(hash, 'hex'), Buffer.from(user.hash, 'hex'));
 }
 function newId() { return crypto.randomBytes(8).toString('hex'); }
+const ROLES = ['master', 'supervisor', 'seller'];
+const cleanRole = r => (ROLES.includes(r) ? r : 'seller');
 
 function freshDb() {
   const master = hashPassword('master123');
@@ -44,7 +46,7 @@ function freshDb() {
     },
     users: [
       { id: newId(), username: 'master', name: 'المدير', role: 'master', salt: master.salt, hash: master.hash, createdAt: new Date().toISOString() },
-      { id: newId(), username: 'seller', name: 'البائع', role: 'seller', salt: seller.salt, hash: seller.hash, createdAt: new Date().toISOString() }
+      { id: newId(), username: 'seller', name: 'البائع', role: 'seller', branch: 'b1', salt: seller.salt, hash: seller.hash, createdAt: new Date().toISOString() }
     ],
     transactions: []
   };
@@ -55,6 +57,8 @@ function loadDb() {
   if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
   if (!fs.existsSync(DB_FILE)) { db = freshDb(); saveDb(); return; }
   db = JSON.parse(fs.readFileSync(DB_FILE, 'utf8'));
+  // upgrade older databases: every user gets a known role and a branch field
+  for (const u of db.users) { u.role = cleanRole(u.role); if (u.branch === undefined) u.branch = null; }
 }
 function saveDb() {
   const tmp = DB_FILE + '.tmp';
@@ -90,7 +94,7 @@ function getUser(req) {
   const user = db.users.find(u => u.id === s.userId);
   return user ? { user, token: m[1] } : null;
 }
-function publicUser(u) { return { id: u.id, username: u.username, name: u.name, role: u.role, createdAt: u.createdAt }; }
+function publicUser(u) { return { id: u.id, username: u.username, name: u.name, role: u.role, branch: u.branch || null, createdAt: u.createdAt }; }
 
 // login rate limit: 8 failed tries per 10 min per IP
 const failures = new Map();
@@ -174,7 +178,10 @@ async function api(req, res, url) {
   if (!auth) return send(res, 401, { error: 'not_logged_in' });
   const me = auth.user;
   const isMaster = me.role === 'master';
+  const canInspect = me.role === 'master' || me.role === 'supervisor'; // supervisor: read-only, sees everything
   const masterOnly = () => { if (!isMaster) { send(res, 403, { error: 'master_only' }); return false; } return true; };
+  const inspectOnly = () => { if (!canInspect) { send(res, 403, { error: 'no_access' }); return false; } return true; };
+  const validBranch = id => db.settings.branches.some(b => b.id === id);
 
   if (route === '/logout' && method === 'POST') {
     sessions.delete(auth.token);
@@ -214,7 +221,10 @@ async function api(req, res, url) {
   }
 
   if (route === '/transactions' && method === 'POST') {
+    if (me.role === 'supervisor') return send(res, 403, { error: 'read_only' });
     const b = await readBody(req);
+    // a seller with an assigned branch always records into that branch
+    if (me.role === 'seller' && me.branch && validBranch(me.branch)) b.branch = me.branch;
     if (!['sell', 'buy'].includes(b.type)) return send(res, 400, { error: 'bad_type' });
     if (!['USD', 'IQD'].includes(b.currency)) return send(res, 400, { error: 'bad_currency' });
     const branch = db.settings.branches.find(x => x.id === b.branch);
@@ -254,7 +264,7 @@ async function api(req, res, url) {
   }
 
   if (route === '/transactions' && method === 'GET') {
-    if (!masterOnly()) return;
+    if (!inspectOnly()) return;
     const from = url.searchParams.get('from'), to = url.searchParams.get('to'), branch = url.searchParams.get('branch');
     const f = from ? new Date(from) : null, tt = to ? new Date(to) : null;
     const list = db.transactions.filter(t => {
@@ -278,15 +288,21 @@ async function api(req, res, url) {
   }
 
   if (route === '/export.csv' && method === 'GET') {
-    if (!masterOnly()) return;
+    if (!inspectOnly()) return;
+    const from = url.searchParams.get('from'), to = url.searchParams.get('to'), branchQ = url.searchParams.get('branch');
+    const fromD = from ? new Date(from) : null, toD = to ? new Date(to) : null;
+    const name = cleanText(url.searchParams.get('name') || 'alrayhan-sales', 60).replace(/[^A-Za-z0-9_.-]/g, '-');
     const rows = [['no', 'date', 'time', 'type', 'branch', 'item', 'qty', 'price', 'subtotal', 'currency', 'rate_iqd_per_usd', 'user', 'note']];
     for (const t of db.transactions) {
       const d = new Date(t.at);
+      if (fromD && d < fromD) continue;
+      if (toD && d >= toD) continue;
+      if (branchQ && branchQ !== 'all' && t.branch !== branchQ) continue;
       const br = db.settings.branches.find(b => b.id === t.branch);
       for (const it of t.items) rows.push([t.no, d.toLocaleDateString('en-CA'), d.toLocaleTimeString('en-GB'), t.type, br ? br.nameEn : t.branch, it.name, it.qty, it.price, it.subtotal, t.currency, t.rate, t.userName, t.note]);
     }
     const csv = '\ufeff' + rows.map(r => r.map(v => `"${String(v ?? '').replace(/"/g, '""')}"`).join(',')).join('\r\n');
-    return send(res, 200, csv, { 'Content-Type': 'text/csv; charset=utf-8', 'Content-Disposition': 'attachment; filename="alrayhan-sales.csv"' });
+    return send(res, 200, csv, { 'Content-Type': 'text/csv; charset=utf-8', 'Content-Disposition': `attachment; filename="${name}.csv"` });
   }
 
   // ----- users (master) -----
@@ -298,9 +314,11 @@ async function api(req, res, url) {
     if (!/^[a-z0-9_.-]{3,30}$/.test(username)) return send(res, 400, { error: 'bad_username' });
     if (db.users.some(u => u.username === username)) return send(res, 409, { error: 'username_taken' });
     if (String(b.password || '').length < 4) return send(res, 400, { error: 'short_password' });
-    const role = b.role === 'master' ? 'master' : 'seller';
+    const role = cleanRole(b.role);
+    if (role === 'seller' && b.branch && !validBranch(b.branch)) return send(res, 400, { error: 'bad_branch' });
+    const branch = role === 'seller' && b.branch ? b.branch : null;
     const h = hashPassword(b.password);
-    const u = { id: newId(), username, name: cleanText(b.name, 40) || username, role, salt: h.salt, hash: h.hash, createdAt: new Date().toISOString() };
+    const u = { id: newId(), username, name: cleanText(b.name, 40) || username, role, branch, salt: h.salt, hash: h.hash, createdAt: new Date().toISOString() };
     db.users.push(u); saveDb();
     return send(res, 201, publicUser(u));
   }
@@ -316,7 +334,16 @@ async function api(req, res, url) {
       for (const [tok, s] of sessions) if (s.userId === u.id && tok !== auth.token) sessions.delete(tok);
     }
     if (b.name !== undefined) u.name = cleanText(b.name, 40) || u.name;
-    if (b.role !== undefined && u.id !== me.id) u.role = b.role === 'master' ? 'master' : 'seller';
+    if (b.role !== undefined && u.id !== me.id) u.role = cleanRole(b.role);
+    if (b.branch !== undefined) {
+      if (b.branch && !validBranch(b.branch)) return send(res, 400, { error: 'bad_branch' });
+      u.branch = b.branch || null;
+    }
+    if (u.role !== 'seller') u.branch = null; // only sellers are tied to a branch
+    if (b.role !== undefined || b.branch !== undefined) {
+      // role / branch changed: sign the user out so the new access applies right away
+      for (const [tok, s] of sessions) if (s.userId === u.id && tok !== auth.token) sessions.delete(tok);
+    }
     saveDb();
     return send(res, 200, publicUser(u));
   }
