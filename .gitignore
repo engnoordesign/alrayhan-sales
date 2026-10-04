@@ -1,0 +1,8 @@
+# Shop database and backups — never upload (contains sales and password hashes)
+alrayhan-sales/data/
+data/
+
+node_modules/
+.DS_Store
+Thumbs.db
+*.log
