@@ -1,0 +1,1 @@
+{"name":"Alrayhan Sales","image":"mcr.microsoft.com/devcontainers/javascript-node:20","forwardPorts":[3000],"portsAttributes":{"3000":{"label":"Alrayhan Sales","onAutoForward":"openBrowser"}},"postAttachCommand":{"server":"cd alrayhan-sales && node server.js"},"customizations":{"codespaces":{"openFiles":["README.md"]}}}
