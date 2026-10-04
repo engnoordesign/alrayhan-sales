@@ -244,6 +244,28 @@ main { max-width: 1120px; margin: 0 auto; padding: 24px clamp(12px, 3vw, 32px) 6
 .day-detail { margin-top: 28px; }
 .day-detail .totals { margin-bottom: 16px; }
 
+/* ---------- rate chip ---------- */
+.rate-chip { display: inline-flex; align-items: center; min-height: 36px; direction: ltr; unicode-bidi: isolate; font-size: .85rem; color: var(--muted); background: var(--surface-2); border-radius: 99px; padding: 4px 12px; white-space: nowrap; font-variant-numeric: tabular-nums; }
+
+/* ---------- reports ---------- */
+.report-controls .ctl { display: flex; align-items: center; gap: 8px; color: var(--muted); }
+.report-controls .ctl .field, .report-controls > select { width: auto; }
+.report-empty { padding: 40px 0; text-align: center; }
+.report { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 24px; }
+.report-head { display: flex; gap: 16px; align-items: center; border-bottom: 2px solid var(--line); padding-bottom: 16px; margin-bottom: 20px; }
+.report-head img { width: 64px; height: 64px; object-fit: contain; }
+.report-head h2 { margin: 0; font-size: 1.5rem; }
+.report-head .meta { color: var(--muted); font-size: .9rem; }
+.report-head .meta strong { color: var(--ink); }
+.report-actions { margin-inline-start: auto; display: flex; gap: 8px; flex-wrap: wrap; }
+.report h3 { margin: 24px 0 10px; }
+.report .table-wrap { border-radius: var(--radius-sm); }
+.report .table td.items { white-space: normal; min-width: 220px; font-size: .9rem; }
+.report .totals { grid-template-columns: repeat(4, 1fr); margin-bottom: 8px; }
+.report-foot { color: var(--muted); font-size: .85rem; margin-top: 20px; }
+.kind-cell.sell { color: var(--basil); font-weight: 600; }
+.kind-cell.buy { color: var(--oud); font-weight: 600; }
+
 /* ---------- settings ---------- */
 .settings-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
 .panel { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 20px; }
@@ -259,6 +281,8 @@ main { max-width: 1120px; margin: 0 auto; padding: 24px clamp(12px, 3vw, 32px) 6
 .user-form { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px; }
 .role-tag { font-size: .8rem; padding: 2px 10px; border-radius: 99px; background: var(--surface-2); }
 .role-tag.master { background: var(--gold); color: #2A1D08; }
+.role-tag.supervisor { background: color-mix(in srgb, var(--focus) 22%, var(--surface)); }
+.table select.field { min-height: 36px; padding-block: 4px; width: auto; min-width: 150px; }
 .user-actions { display: flex; gap: 6px; justify-content: flex-end; }
 
 /* ---------- toast ---------- */
@@ -281,7 +305,10 @@ main { max-width: 1120px; margin: 0 auto; padding: 24px clamp(12px, 3vw, 32px) 6
   .lines-head { display: none; }
   .line { grid-template-columns: 1fr 1fr 40px; grid-template-areas: "name name rm" "qty price price" "sub sub sub"; padding: 10px 0; border-bottom: 1px dashed var(--line); }
   .line .n { grid-area: name; } .line .q { grid-area: qty; } .line .p { grid-area: price; } .line .sub { grid-area: sub; } .line .rm { grid-area: rm; }
-  .totals { grid-template-columns: 1fr; }
+  .totals, .report .totals { grid-template-columns: 1fr; }
+  .rate-chip { display: none; }
+  .report { padding: 16px; }
+  .report-head { flex-wrap: wrap; }
   .recent-list li { grid-template-columns: auto 1fr auto; }
   .recent-time { display: none; }
   .entry { border-radius: 90px 90px var(--radius) var(--radius) / 40px 40px var(--radius) var(--radius); }
@@ -290,6 +317,11 @@ main { max-width: 1120px; margin: 0 auto; padding: 24px clamp(12px, 3vw, 32px) 6
 
 /* print: history only */
 @media print {
-  .topbar, .hist-controls, .tx-actions, .toast { display: none !important; }
+  .topbar, .hist-controls, .tx-actions, .toast, .report-actions { display: none !important; }
   body { background: #fff; color: #000; }
+  .report { border: 0; padding: 0; }
+  .table-wrap { overflow: visible; }
+  .table th, .table td { white-space: normal; }
+  h3, .report-head { break-after: avoid; }
+  tr { break-inside: avoid; }
 }

@@ -40,11 +40,13 @@
       </div>
     </div>
     <nav class="tabs" id="tabs" hidden>
-      <button class="tab is-active" data-view="desk" data-t="tabDesk"></button>
-      <button class="tab" data-view="history" data-t="tabHistory"></button>
-      <button class="tab" data-view="settings" data-t="tabSettings"></button>
+      <button class="tab is-active" data-view="desk" data-roles="master seller" data-t="tabDesk"></button>
+      <button class="tab" data-view="history" data-roles="master supervisor" data-t="tabHistory"></button>
+      <button class="tab" data-view="reports" data-roles="master supervisor" data-t="tabReports"></button>
+      <button class="tab" data-view="settings" data-roles="master" data-t="tabSettings"></button>
     </nav>
     <div class="tools">
+      <span class="rate-chip" id="rateChip"></span>
       <button class="icon-btn currency-btn" id="currencyBtn" type="button"></button>
       <button class="icon-btn js-lang" type="button"></button>
       <button class="icon-btn js-theme" type="button"></button>
@@ -110,6 +112,21 @@
       <div id="dayDetail"></div>
     </section>
 
+    <!-- Reports (master + supervisor) -->
+    <section class="view" id="view-reports" hidden>
+      <div class="hist-controls report-controls">
+        <div class="seg" id="reportSeg" role="tablist">
+          <button data-period="day" class="is-active" data-t="dailyReport"></button>
+          <button data-period="week" data-t="weeklyReport"></button>
+          <button data-period="month" data-t="monthlyReport"></button>
+        </div>
+        <label class="ctl"><span data-t="reportFor"></span><input type="date" id="reportDate" class="field" required></label>
+        <select id="reportBranch" class="field js-branch-filter"></select>
+        <button class="btn btn-primary" id="reportGo" type="button" data-t="makeReport"></button>
+      </div>
+      <div id="report"><p class="muted report-empty" data-t="reportHint"></p></div>
+    </section>
+
     <!-- Settings (master) -->
     <section class="view" id="view-settings" hidden>
       <div class="settings-grid">
@@ -140,7 +157,7 @@
           <h2 data-t="usersTitle"></h2>
           <div class="table-wrap">
             <table class="table" id="usersTable">
-              <thead><tr><th data-t="name"></th><th data-t="username"></th><th data-t="role"></th><th></th></tr></thead>
+              <thead><tr><th data-t="name"></th><th data-t="username"></th><th data-t="role"></th><th data-t="workBranch"></th><th></th></tr></thead>
               <tbody></tbody>
             </table>
           </div>
@@ -149,10 +166,12 @@
             <input name="name" class="field" data-ph="name" required>
             <input name="username" class="field" data-ph="username" required pattern="[A-Za-z0-9_.\-]{3,30}">
             <input name="password" class="field" type="password" data-ph="password" required minlength="4">
-            <select name="role" class="field">
+            <select name="role" class="field" id="newUserRole">
               <option value="seller" data-t="roleSeller"></option>
+              <option value="supervisor" data-t="roleSupervisor"></option>
               <option value="master" data-t="roleMaster"></option>
             </select>
+            <select name="branch" class="field" id="newUserBranch" aria-label="branch"></select>
             <button class="btn btn-primary" data-t="add"></button>
           </form>
         </div>

@@ -22,6 +22,15 @@ const T = {
     by: 'بواسطة', del: 'حذف', confirmDel: 'هل تريد حذف هذا القيد نهائياً؟', deleted: 'تم حذف القيد',
     changePw: 'تغيير كلمة المرور', newPwPrompt: 'اكتب كلمة المرور الجديدة (4 أحرف على الأقل):', pwChanged: 'تم تغيير كلمة المرور',
     confirmUserDel: n => `حذف المستخدم ${n}؟`, userAdded: 'تمت إضافة المستخدم', userDeleted: 'تم حذف المستخدم', you: '(أنت)',
+    tabReports: 'التقارير', supervisorBadge: 'مشرف', roleSupervisor: 'مشرف (اطلاع فقط وتقارير)',
+    workBranch: 'فرع العمل', anyBranch: 'أي فرع (يختاره عند الدخول)', allBranchesShort: 'كل الفروع', branchSaved: 'تم تحديد فرع العمل', roleSaved: 'تم تغيير الصلاحية',
+    rateChip: r => `1$ = ${r} د.ع`, rateChipTip: 'سعر صرف الدولار — يغيّره الماستر فقط', workingIn: b => `تعمل الآن في ${b}`,
+    dailyReport: 'تقرير يومي', weeklyReport: 'تقرير أسبوعي', monthlyReport: 'تقرير شهري', reportFor: 'التاريخ', makeReport: 'إنشاء التقرير',
+    reportHint: 'اختر نوع التقرير والتاريخ والفرع ثم اضغط «إنشاء التقرير».', printReport: 'طباعة / حفظ PDF',
+    reportGenerated: (d, n) => `أُنشئ في ${d} بواسطة ${n}`, reportCurrency: (c, r) => `المبالغ بال${c}. سعر الصرف الحالي 1$ = ${r} د.ع (كل قيد محسوب بسعره وقت التسجيل).`,
+    entriesCount: 'عدد القيود', byBranch: 'حسب الفرع', bySeller: 'حسب المستخدم', byDay: 'حسب اليوم', topItems: 'أكثر المواد مبيعاً', allEntries: 'كل القيود',
+    colUser: 'المستخدم', colBranch: 'الفرع', colDay: 'اليوم', colNo: 'رقم', colWhen: 'الوقت', colType: 'النوع', colItems: 'المواد', colTotal: 'المبلغ', colQtySold: 'الكمية المباعة', colAmount: 'المبلغ',
+    e_read_only: 'حساب المشرف للاطلاع فقط ولا يمكنه إجراء تغييرات.', e_no_access: 'ليست لديك صلاحية لهذا القسم.', e_master_only: 'هذا الإجراء للماستر فقط.', e_bad_branch: 'الفرع غير صحيح.',
     saved: 'تم الحفظ', logout: 'تسجيل الخروج', currencyTip: 'تبديل العملة', langTip: 'English', themeTip: 'الوضع الليلي/النهاري',
     nameAr: 'الاسم بالعربي', nameEn: 'الاسم بالإنكليزي', saveBranches: 'حفظ الأسماء', sellerBadge: 'بائع', masterBadge: 'ماستر',
     e_bad_login: 'اسم المستخدم أو كلمة المرور غير صحيحة.', e_too_many_attempts: 'محاولات كثيرة خاطئة. انتظر 10 دقائق ثم حاول مجدداً.',
@@ -51,6 +60,15 @@ const T = {
     by: 'by', del: 'Delete', confirmDel: 'Delete this entry permanently?', deleted: 'Entry deleted',
     changePw: 'Change password', newPwPrompt: 'Type the new password (at least 4 characters):', pwChanged: 'Password changed',
     confirmUserDel: n => `Delete user ${n}?`, userAdded: 'User added', userDeleted: 'User deleted', you: '(you)',
+    tabReports: 'Reports', supervisorBadge: 'Supervisor', roleSupervisor: 'Supervisor (view & reports only)',
+    workBranch: 'Works in', anyBranch: 'Any branch (chosen at sign-in)', allBranchesShort: 'All branches', branchSaved: 'Work branch set', roleSaved: 'Access changed',
+    rateChip: r => `1$ = ${r} IQD`, rateChipTip: 'Dollar exchange rate — only the master can change it', workingIn: b => `You are working in ${b}`,
+    dailyReport: 'Daily report', weeklyReport: 'Weekly report', monthlyReport: 'Monthly report', reportFor: 'Date', makeReport: 'Create report',
+    reportHint: 'Choose the report type, date and branch, then press “Create report”.', printReport: 'Print / Save PDF',
+    reportGenerated: (d, n) => `Created ${d} by ${n}`, reportCurrency: (c, r) => `Amounts in ${c}. Current rate 1$ = ${r} IQD (each entry is converted at the rate it was saved with).`,
+    entriesCount: 'Entries', byBranch: 'By branch', bySeller: 'By user', byDay: 'By day', topItems: 'Top-selling items', allEntries: 'All entries',
+    colUser: 'User', colBranch: 'Branch', colDay: 'Day', colNo: 'No.', colWhen: 'Time', colType: 'Type', colItems: 'Items', colTotal: 'Amount', colQtySold: 'Qty sold', colAmount: 'Amount',
+    e_read_only: 'Supervisor accounts are view-only and can’t make changes.', e_no_access: 'You don’t have access to this section.', e_master_only: 'Only the master can do this.', e_bad_branch: 'Invalid branch.',
     saved: 'Saved', logout: 'Sign out', currencyTip: 'Switch currency', langTip: 'العربية', themeTip: 'Light / dark mode',
     nameAr: 'Arabic name', nameEn: 'English name', saveBranches: 'Save names', sellerBadge: 'Seller', masterBadge: 'Master',
     e_bad_login: 'Wrong username or password.', e_too_many_attempts: 'Too many wrong tries. Wait 10 minutes and try again.',
@@ -73,7 +91,7 @@ const setPref = (k, v) => { try { localStorage.setItem('ars_' + k, v); } catch {
 
 const S = {
   lang: pref('lang', 'ar'), theme: pref('theme', 'light'), currency: pref('currency', 'IQD'), branch: pref('branch', 'b1'),
-  user: null, settings: null, pub: null, view: 'desk', period: 'day', branchFilter: 'all', entryType: 'sell', openPeriod: null, history: []
+  user: null, settings: null, pub: null, view: 'desk', period: 'day', branchFilter: 'all', reportPeriod: 'day', reportBranch: 'all', report: null, entryType: 'sell', openPeriod: null, history: []
 };
 
 const $ = s => document.querySelector(s);
@@ -117,6 +135,9 @@ const dayKey = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate
 function weekStart(d) { const x = new Date(d); x.setHours(0, 0, 0, 0); x.setDate(x.getDate() - ((x.getDay() + 1) % 7)); return x; } // Saturday
 const fmtDate = (d, o = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }) => new Intl.DateTimeFormat(locale(), o).format(d);
 const fmtTime = d => new Intl.DateTimeFormat(locale(), { hour: 'numeric', minute: '2-digit' }).format(d);
+const roleBadge = r => (r === 'master' ? t('masterBadge') : r === 'supervisor' ? t('supervisorBadge') : t('sellerBadge'));
+const ROLE_VIEWS = { master: ['desk', 'history', 'reports', 'settings'], supervisor: ['history', 'reports'], seller: ['desk'] };
+const canView = v => (ROLE_VIEWS[S.user?.role] || ['desk']).includes(v);
 const branchName = id => { const b = (S.settings || S.pub)?.branches.find(x => x.id === id); return b ? (S.lang === 'ar' ? b.nameAr : b.nameEn) : id; };
 
 // ---------- chrome: lang / theme / currency ----------
@@ -136,7 +157,10 @@ function applyChrome() {
   fillBranchSelects();
   if (S.user) {
     $('#hello').textContent = t('hello', S.user.name || S.user.username);
-    $('#branchLabel').textContent = `${branchName(S.branch)} · ${S.user.role === 'master' ? t('masterBadge') : t('sellerBadge')}`;
+    const where = S.user.role === 'supervisor' ? t('allBranchesShort') : branchName(S.branch);
+    $('#branchLabel').textContent = `${where} · ${roleBadge(S.user.role)}`;
+    const rc = $('#rateChip');
+    if (S.settings) { rc.textContent = t('rateChip', new Intl.NumberFormat('en-US').format(S.settings.rate)); rc.title = t('rateChipTip'); }
   }
   tick();
 }
@@ -146,9 +170,16 @@ function fillBranchSelects() {
     sel.innerHTML = src.branches.map(b => `<option value="${b.id}">${esc(S.lang === 'ar' ? b.nameAr : b.nameEn)}</option>`).join('');
     sel.value = S.branch;
   });
+  const opts = src.branches.map(b => `<option value="${b.id}">${esc(S.lang === 'ar' ? b.nameAr : b.nameEn)}</option>`).join('');
   const bf = $('#branchFilter');
-  bf.innerHTML = `<option value="all">${t('allBranches')}</option>` + src.branches.map(b => `<option value="${b.id}">${esc(S.lang === 'ar' ? b.nameAr : b.nameEn)}</option>`).join('');
+  bf.innerHTML = `<option value="all">${t('allBranches')}</option>` + opts;
   bf.value = S.branchFilter;
+  const rb = $('#reportBranch');
+  rb.innerHTML = `<option value="all">${t('allBranches')}</option>` + opts;
+  rb.value = S.reportBranch;
+  const nb = $('#newUserBranch'), keep = nb.value;
+  nb.innerHTML = opts + `<option value="">${t('anyBranch')}</option>`;
+  nb.value = keep || src.branches[0].id;
 }
 function rerender() {
   applyChrome();
@@ -156,6 +187,7 @@ function rerender() {
   renderRecent();
   if (S.view === 'history') { renderHistory(); if (lastSearch) searchDay(lastSearch, false); }
   if (S.view === 'settings') renderSettings();
+  if (S.view === 'reports' && S.report) renderReport();
   if ($('#entry').open) { setEntryTitle(); recalc(); }
 }
 let lastSearch = null;
@@ -189,10 +221,14 @@ function showLogin() {
 async function enterApp(user) {
   S.user = user;
   S.settings = await api('/settings');
+  const assigned = user.role === 'seller' && user.branch && S.settings.branches.some(b => b.id === user.branch);
+  if (assigned && S.branch !== user.branch) { S.branch = user.branch; setTimeout(() => toast(t('workingIn', branchName(S.branch))), 300); }
   if (!S.settings.branches.some(b => b.id === S.branch)) S.branch = S.settings.branches[0].id;
   $('#login').hidden = true; $('#app').hidden = false;
-  $('#tabs').hidden = user.role !== 'master';
-  switchView('desk');
+  const views = ROLE_VIEWS[user.role] || ['desk'];
+  $$('.tab').forEach(b => { b.hidden = !views.includes(b.dataset.view); });
+  $('#tabs').hidden = views.length < 2;
+  switchView(views[0]);
   applyChrome();
   loadItemNames();
   renderRecent();
@@ -211,6 +247,7 @@ $('#logoutBtn').addEventListener('click', async () => { try { await api('/logout
 
 // ---------- views ----------
 function switchView(v) {
+  if (!canView(v)) v = (ROLE_VIEWS[S.user?.role] || ['desk'])[0];
   S.view = v;
   $$('.tab').forEach(b => b.classList.toggle('is-active', b.dataset.view === v));
   $$('.view').forEach(s => { s.hidden = s.id !== 'view-' + v; });
@@ -379,7 +416,7 @@ function txHtml(tx) {
       </div>
       <ul class="tx-items">${tx.items.map(i => `<li><span>${esc(i.name)} <span class="q">× ${i.qty} ${S.lang === 'ar' ? 'بسعر' : '@'} ${esc(fmt(i.price, tx.currency))}</span></span>${money(i.subtotal, tx.currency)}</li>`).join('')}</ul>
       ${tx.note ? `<p class="tx-note">${esc(tx.note)}</p>` : ''}
-      <div class="tx-actions"><button class="btn btn-danger js-del" data-id="${tx.id}">${t('del')}</button></div>
+      ${S.user?.role === 'master' ? `<div class="tx-actions"><button class="btn btn-danger js-del" data-id="${tx.id}">${t('del')}</button></div>` : ''}
     </div>`;
 }
 function renderHistory() {
@@ -444,7 +481,15 @@ async function renderSettings() {
     <tr>
       <td>${esc(u.name)} ${u.id === S.user.id ? `<span class="muted">${t('you')}</span>` : ''}</td>
       <td dir="ltr" style="text-align:start">${esc(u.username)}</td>
-      <td><span class="role-tag ${u.role}">${u.role === 'master' ? t('masterBadge') : t('sellerBadge')}</span></td>
+      <td>${u.id === S.user.id ? `<span class="role-tag ${u.role}">${roleBadge(u.role)}</span>` : `
+        <select class="field js-role" data-id="${u.id}" aria-label="${esc(t('role'))}">
+          ${['seller', 'supervisor', 'master'].map(r => `<option value="${r}" ${u.role === r ? 'selected' : ''}>${roleBadge(r)}</option>`).join('')}
+        </select>`}</td>
+      <td>${u.role === 'seller' ? `
+        <select class="field js-ubranch" data-id="${u.id}" aria-label="${esc(t('workBranch'))}">
+          ${S.settings.branches.map(b => `<option value="${b.id}" ${u.branch === b.id ? 'selected' : ''}>${esc(S.lang === 'ar' ? b.nameAr : b.nameEn)}</option>`).join('')}
+          <option value="" ${u.branch ? '' : 'selected'}>${t('anyBranch')}</option>
+        </select>` : `<span class="muted">${t('allBranchesShort')}</span>`}</td>
       <td><div class="user-actions">
         <button class="btn btn-ghost js-pw" data-id="${u.id}">${t('changePw')}</button>
         ${u.id === S.user.id ? '' : `<button class="btn btn-danger js-udel" data-id="${u.id}" data-name="${esc(u.name)}">${t('del')}</button>`}
@@ -477,17 +522,143 @@ $('#usersTable').addEventListener('click', async e => {
     try { await api('/users/' + del.dataset.id, { method: 'DELETE' }); toast(t('userDeleted')); renderSettings(); } catch (err) { toast(errText(err)); }
   }
 });
+$('#usersTable').addEventListener('change', async e => {
+  const rs = e.target.closest('.js-role'), bs = e.target.closest('.js-ubranch');
+  try {
+    if (rs) { await api('/users/' + rs.dataset.id, { method: 'PUT', body: { role: rs.value } }); toast(t('roleSaved')); renderSettings(); }
+    if (bs) { await api('/users/' + bs.dataset.id, { method: 'PUT', body: { branch: bs.value || null } }); toast(t('branchSaved')); }
+  } catch (err) { toast(errText(err)); renderSettings(); }
+});
+const syncNewUserBranch = () => { $('#newUserBranch').hidden = $('#newUserRole').value !== 'seller'; };
+$('#newUserRole').addEventListener('change', syncNewUserBranch);
 $('#userForm').addEventListener('submit', async e => {
   e.preventDefault(); const f = e.target;
   try {
-    await api('/users', { method: 'POST', body: { name: f.name.value, username: f.username.value, password: f.password.value, role: f.role.value } });
-    f.reset(); toast(t('userAdded')); renderSettings();
+    await api('/users', { method: 'POST', body: { name: f.name.value, username: f.username.value, password: f.password.value, role: f.role.value, branch: f.role.value === 'seller' ? (f.branch.value || null) : null } });
+    f.reset(); syncNewUserBranch(); fillBranchSelects(); toast(t('userAdded')); renderSettings();
   } catch (err) { toast(errText(err)); }
 });
+
+// ---------- reports (master + supervisor) ----------
+function reportRange(period, value) {
+  const [y, m, d] = value.split('-').map(Number);
+  const day = new Date(y, m - 1, d);
+  if (period === 'day') return { from: day, to: new Date(y, m - 1, d + 1) };
+  if (period === 'week') { const a = weekStart(day); const b = new Date(a); b.setDate(b.getDate() + 7); return { from: a, to: b }; }
+  return { from: new Date(y, m - 1, 1), to: new Date(y, m, 1) };
+}
+function reportPeriodLabel(period, from, to) {
+  if (period === 'day') return fmtDate(from);
+  if (period === 'week') { const last = new Date(to); last.setDate(last.getDate() - 1); const o = { day: 'numeric', month: 'long' }; return `${fmtDate(from, o)} – ${fmtDate(last, { ...o, year: 'numeric' })}`; }
+  return fmtDate(from, { month: 'long', year: 'numeric' });
+}
+async function makeReport() {
+  const value = $('#reportDate').value; if (!value) return;
+  const { from, to } = reportRange(S.reportPeriod, value);
+  const btn = $('#reportGo'); btn.disabled = true;
+  try {
+    const list = await api(`/transactions?from=${encodeURIComponent(from.toISOString())}&to=${encodeURIComponent(to.toISOString())}&branch=${S.reportBranch}`);
+    S.report = { period: S.reportPeriod, branch: S.reportBranch, from, to, list, at: new Date() };
+    renderReport();
+  } catch (err) { toast(errText(err)); }
+  finally { btn.disabled = false; }
+}
+function groupSum(list, keyFn) {
+  const m = new Map();
+  for (const tx of list) { const k = keyFn(tx); if (!m.has(k)) m.set(k, []); m.get(k).push(tx); }
+  return [...m.entries()].map(([k, l]) => ({ key: k, ...sumUp(l) }));
+}
+function sumRows(rows, labelFn) {
+  return rows.map(r => `<tr><td>${esc(labelFn(r.key))}</td><td class="money">${esc(fmt(r.sales))}</td><td class="money">${esc(fmt(r.buys))}</td>
+    <td class="money ${r.net < 0 ? 'neg' : ''}">${esc(fmt(r.net))}</td><td class="num">${r.count}</td></tr>`).join('');
+}
+function sumTable(title, firstCol, rows, labelFn) {
+  return `<h3>${title}</h3><div class="table-wrap"><table class="table"><thead><tr><th>${firstCol}</th><th class="money">${t('colSales')}</th>
+    <th class="money">${t('colBuys')}</th><th class="money">${t('colNet')}</th><th class="num">${t('colCount')}</th></tr></thead>
+    <tbody>${rows.length ? sumRows(rows, labelFn) : `<tr class="empty-row"><td colspan="5">${t('noData')}</td></tr>`}</tbody></table></div>`;
+}
+function renderReport() {
+  const R = S.report; if (!R) return;
+  const list = R.list, s = sumUp(list);
+  const title = R.period === 'day' ? t('dailyReport') : R.period === 'week' ? t('weeklyReport') : t('monthlyReport');
+  const branchTxt = R.branch === 'all' ? t('allBranches') : branchName(R.branch);
+  const logo = S.settings?.logo || 'logo.svg';
+  const shop = S.lang === 'ar' ? S.settings.shopNameAr : S.settings.shopName;
+
+  const byBranch = groupSum(list, tx => tx.branch).sort((a, b) => b.sales - a.sales);
+  const byUser = groupSum(list, tx => tx.userName).sort((a, b) => b.sales - a.sales);
+  const byDay = R.period === 'day' ? [] : groupSum(list, tx => dayKey(new Date(tx.at))).sort((a, b) => a.key.localeCompare(b.key));
+  const dayLabel = k => { const [y, m, d] = k.split('-').map(Number); return fmtDate(new Date(y, m - 1, d), { weekday: 'long', day: 'numeric', month: 'short' }); };
+
+  const items = new Map();
+  for (const tx of list) if (tx.type === 'sell') for (const it of tx.items) {
+    const k = it.name.toLowerCase(); const cur = items.get(k) || { name: it.name, qty: 0, amount: 0 };
+    cur.qty += it.qty; cur.amount += conv(it.subtotal, tx.currency, tx.rate); items.set(k, cur);
+  }
+  const top = [...items.values()].sort((a, b) => b.amount - a.amount).slice(0, 15);
+
+  const csv = `/api/export.csv?from=${encodeURIComponent(R.from.toISOString())}&to=${encodeURIComponent(R.to.toISOString())}&branch=${R.branch}&name=alrayhan-${R.period}-report-${dayKey(R.from)}`;
+  const nf = new Intl.NumberFormat('en-US');
+
+  $('#report').innerHTML = `
+  <article class="report">
+    <header class="report-head">
+      <img src="${esc(logo)}" alt="">
+      <div>
+        <h2>${esc(title)} — ${esc(shop)}</h2>
+        <div class="meta"><strong>${esc(reportPeriodLabel(R.period, R.from, R.to))}</strong> · ${esc(branchTxt)}</div>
+        <div class="meta">${esc(t('reportGenerated', `${fmtDate(R.at, { day: 'numeric', month: 'short', year: 'numeric' })} ${fmtTime(R.at)}`, S.user.name || S.user.username))}</div>
+      </div>
+      <div class="report-actions">
+        <button class="btn btn-primary" type="button" id="reportPrint">${t('printReport')}</button>
+        <a class="btn btn-ghost" href="${csv}">${t('exportCsv')}</a>
+      </div>
+    </header>
+
+    <div class="totals">
+      ${totalsHtml(s)}
+      <div class="total-cell"><div class="lbl">${t('entriesCount')}</div><div class="val">${s.count}</div></div>
+    </div>
+
+    ${R.branch === 'all' ? sumTable(t('byBranch'), t('colBranch'), byBranch, branchName) : ''}
+    ${sumTable(t('bySeller'), t('colUser'), byUser, k => k)}
+    ${R.period === 'day' ? '' : sumTable(t('byDay'), t('colDay'), byDay, dayLabel)}
+
+    <h3>${t('topItems')}</h3>
+    <div class="table-wrap"><table class="table"><thead><tr><th>${t('item')}</th><th class="num">${t('colQtySold')}</th><th class="money">${t('colAmount')}</th></tr></thead>
+      <tbody>${top.length ? top.map(i => `<tr><td>${esc(i.name)}</td><td class="num">${nf.format(i.qty)}</td><td class="money">${esc(fmt(i.amount))}</td></tr>`).join('')
+        : `<tr class="empty-row"><td colspan="3">${t('noData')}</td></tr>`}</tbody></table></div>
+
+    <h3>${t('allEntries')}</h3>
+    <div class="table-wrap"><table class="table"><thead><tr><th class="num">${t('colNo')}</th><th>${t('colWhen')}</th><th>${t('colType')}</th>
+      ${R.branch === 'all' ? `<th>${t('colBranch')}</th>` : ''}<th>${t('colUser')}</th><th>${t('colItems')}</th><th class="money">${t('colTotal')}</th></tr></thead>
+      <tbody>${list.length ? [...list].reverse().map(tx => { const d = new Date(tx.at); return `<tr>
+        <td class="num">${tx.no}</td>
+        <td>${esc(R.period === 'day' ? fmtTime(d) : `${fmtDate(d, { day: 'numeric', month: 'short' })} ${fmtTime(d)}`)}</td>
+        <td class="kind-cell ${tx.type}">${t(tx.type)}</td>
+        ${R.branch === 'all' ? `<td>${esc(branchName(tx.branch))}</td>` : ''}
+        <td>${esc(tx.userName)}</td>
+        <td class="items">${esc(tx.items.map(i => `${i.name} × ${i.qty}`).join('، '))}${tx.note ? ` <span class="muted">— ${esc(tx.note)}</span>` : ''}</td>
+        <td class="money">${esc(fmt(tx.total, tx.currency))}</td></tr>`; }).join('')
+        : `<tr class="empty-row"><td colspan="7">${t('noData')}</td></tr>`}</tbody></table></div>
+
+    <p class="report-foot">${esc(t('reportCurrency', t('curName')[S.currency], nf.format(S.settings.rate)))}</p>
+  </article>`;
+  $('#reportPrint').addEventListener('click', () => window.print());
+}
+$$('#reportSeg button').forEach(b => b.addEventListener('click', () => {
+  S.reportPeriod = b.dataset.period;
+  $$('#reportSeg button').forEach(x => x.classList.toggle('is-active', x === b));
+  if (S.report) makeReport();
+}));
+$('#reportBranch').addEventListener('change', e => { S.reportBranch = e.target.value; if (S.report) makeReport(); });
+$('#reportDate').addEventListener('change', () => { if (S.report) makeReport(); });
+$('#reportGo').addEventListener('click', makeReport);
 
 // ---------- boot ----------
 (async function boot() {
   $('#searchDate').value = dayKey(new Date());
+  $('#reportDate').value = dayKey(new Date());
   try { S.pub = await api('/public'); } catch {}
   applyChrome();
   try { const { user } = await api('/me'); await enterApp(user); }
