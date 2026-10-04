@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="ar" dir="rtl" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Alrayhan Sales</title>
+<link rel="icon" href="logo.svg">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- Login -->
+<section id="login" class="login" hidden>
+  <div class="login-card">
+    <img class="login-logo js-logo" src="logo.svg" alt="">
+    <h1 class="brand-title">Alrayhan Sales</h1>
+    <p class="login-sub" data-t="loginSub"></p>
+    <form id="loginForm" autocomplete="on">
+      <label><span data-t="username"></span><input name="username" autocomplete="username" required></label>
+      <label><span data-t="password"></span><input name="password" type="password" autocomplete="current-password" required></label>
+      <label><span data-t="branch"></span><select name="branch" class="js-branch-select"></select></label>
+      <p class="form-error" id="loginError" role="alert"></p>
+      <button class="btn btn-primary btn-wide" type="submit" data-t="signIn"></button>
+    </form>
+    <div class="login-tools">
+      <button class="icon-btn js-lang" type="button" title="Language"></button>
+      <button class="icon-btn js-theme" type="button" title="Theme"></button>
+    </div>
+  </div>
+</section>
+
+<!-- App -->
+<div id="app" hidden>
+  <header class="topbar">
+    <div class="brand">
+      <img class="brand-logo js-logo" src="logo.svg" alt="">
+      <div>
+        <div class="brand-title">Alrayhan Sales</div>
+        <div class="brand-sub" id="branchLabel"></div>
+      </div>
+    </div>
+    <nav class="tabs" id="tabs" hidden>
+      <button class="tab is-active" data-view="desk" data-t="tabDesk"></button>
+      <button class="tab" data-view="history" data-t="tabHistory"></button>
+      <button class="tab" data-view="settings" data-t="tabSettings"></button>
+    </nav>
+    <div class="tools">
+      <button class="icon-btn currency-btn" id="currencyBtn" type="button"></button>
+      <button class="icon-btn js-lang" type="button"></button>
+      <button class="icon-btn js-theme" type="button"></button>
+      <button class="icon-btn" id="logoutBtn" type="button"></button>
+    </div>
+  </header>
+
+  <main>
+    <!-- Desk: sell & buy -->
+    <section class="view" id="view-desk">
+      <div class="desk-head">
+        <p class="hello" id="hello"></p>
+        <p class="clock" id="clock"></p>
+      </div>
+      <div class="portals">
+        <button class="portal portal-sell" id="sellBtn" type="button">
+          <span class="portal-icon" aria-hidden="true">
+            <svg viewBox="0 0 48 48"><path d="M17 10h14M20 10v5c-6 2-9 7-9 13v8a4 4 0 0 0 4 4h18a4 4 0 0 0 4-4v-8c0-6-3-11-9-13v-5" /><path d="M24 22v12M18 28l6 6 6-6"/></svg>
+          </span>
+          <span class="portal-word" data-t="sell"></span>
+          <span class="portal-hint" data-t="sellHint"></span>
+        </button>
+        <button class="portal portal-buy" id="buyBtn" type="button">
+          <span class="portal-icon" aria-hidden="true">
+            <svg viewBox="0 0 48 48"><path d="M17 10h14M20 10v5c-6 2-9 7-9 13v8a4 4 0 0 0 4 4h18a4 4 0 0 0 4-4v-8c0-6-3-11-9-13v-5" /><path d="M24 34V22M18 28l6-6 6 6"/></svg>
+          </span>
+          <span class="portal-word" data-t="buy"></span>
+          <span class="portal-hint" data-t="buyHint"></span>
+        </button>
+      </div>
+      <div class="recent">
+        <h2 data-t="recentTitle"></h2>
+        <ul id="recentList" class="recent-list"></ul>
+      </div>
+    </section>
+
+    <!-- History (master) -->
+    <section class="view" id="view-history" hidden>
+      <div class="hist-controls">
+        <div class="seg" id="periodSeg" role="tablist">
+          <button data-period="day" class="is-active" data-t="daily"></button>
+          <button data-period="week" data-t="weekly"></button>
+          <button data-period="month" data-t="monthly"></button>
+        </div>
+        <select id="branchFilter" class="field"></select>
+        <form class="date-search" id="dateSearch">
+          <input type="date" id="searchDate" class="field" required>
+          <button class="btn btn-primary" type="submit" data-t="search"></button>
+        </form>
+        <a class="btn btn-ghost" href="/api/export.csv" data-t="exportCsv"></a>
+      </div>
+
+      <div class="totals" id="totals"></div>
+      <h2 class="hist-title" id="histTitle"></h2>
+      <div class="table-wrap">
+        <table class="table" id="periodTable">
+          <thead><tr>
+            <th data-t="colPeriod"></th><th class="money" data-t="colSales"></th><th class="money" data-t="colBuys"></th><th class="money" data-t="colNet"></th><th class="num" data-t="colCount"></th>
+          </tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <div id="dayDetail"></div>
+    </section>
+
+    <!-- Settings (master) -->
+    <section class="view" id="view-settings" hidden>
+      <div class="settings-grid">
+        <div class="panel">
+          <h2 data-t="rateTitle"></h2>
+          <p class="muted" data-t="rateHelp"></p>
+          <form id="rateForm" class="inline-form">
+            <span class="rate-pre" dir="ltr">1 $ =</span>
+            <input id="rateInput" class="field num" type="number" min="1" step="1" required>
+            <span class="rate-pre" data-t="iqdShort"></span>
+            <button class="btn btn-primary" data-t="save"></button>
+          </form>
+        </div>
+        <div class="panel">
+          <h2 data-t="logoTitle"></h2>
+          <p class="muted" data-t="logoHelp"></p>
+          <div class="logo-row">
+            <img class="logo-preview js-logo" src="logo.svg" alt="">
+            <label class="btn btn-ghost file-btn"><span data-t="chooseLogo"></span><input type="file" id="logoInput" accept="image/png,image/jpeg,image/webp,image/svg+xml" hidden></label>
+            <button class="btn btn-text" id="logoReset" type="button" data-t="resetLogo"></button>
+          </div>
+        </div>
+        <div class="panel">
+          <h2 data-t="branchesTitle"></h2>
+          <form id="branchesForm" class="stack"></form>
+        </div>
+        <div class="panel panel-wide">
+          <h2 data-t="usersTitle"></h2>
+          <div class="table-wrap">
+            <table class="table" id="usersTable">
+              <thead><tr><th data-t="name"></th><th data-t="username"></th><th data-t="role"></th><th></th></tr></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+          <h3 data-t="addUser"></h3>
+          <form id="userForm" class="user-form">
+            <input name="name" class="field" data-ph="name" required>
+            <input name="username" class="field" data-ph="username" required pattern="[A-Za-z0-9_.\-]{3,30}">
+            <input name="password" class="field" type="password" data-ph="password" required minlength="4">
+            <select name="role" class="field">
+              <option value="seller" data-t="roleSeller"></option>
+              <option value="master" data-t="roleMaster"></option>
+            </select>
+            <button class="btn btn-primary" data-t="add"></button>
+          </form>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<!-- Entry sheet (sell / buy) -->
+<dialog id="entry" class="entry">
+  <form id="entryForm" method="dialog">
+    <header class="entry-head">
+      <h2 id="entryTitle"></h2>
+      <div class="entry-meta">
+        <span id="entryWhen"></span>
+        <span class="cur-badge" id="entryCur"></span>
+      </div>
+    </header>
+    <div class="entry-body">
+      <div class="lines-head">
+        <span data-t="item"></span><span data-t="qty"></span><span data-t="price"></span><span data-t="subtotal"></span><span></span>
+      </div>
+      <div id="lines"></div>
+      <button type="button" class="btn btn-text add-line" id="addLine" data-t="addItem"></button>
+      <label class="note"><span data-t="note"></span><input id="entryNote" class="field" maxlength="200"></label>
+    </div>
+    <footer class="entry-foot">
+      <div class="grand">
+        <span data-t="total"></span>
+        <strong id="entryTotal">0</strong>
+      </div>
+      <p class="form-error" id="entryError" role="alert"></p>
+      <div class="entry-actions">
+        <button type="button" class="btn btn-ghost" id="entryCancel" data-t="cancel"></button>
+        <button type="submit" class="btn btn-primary" id="entrySave"></button>
+      </div>
+    </footer>
+  </form>
+</dialog>
+
+<datalist id="itemNames"></datalist>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="app.js"></script>
+</body>
+</html>
