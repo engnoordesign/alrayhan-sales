@@ -137,7 +137,7 @@ const cleanText = (s, max = 120) => String(s ?? '').replace(/[\u0000-\u001f]/g, 
 const MIME = {
   '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8',
   '.svg': 'image/svg+xml', '.png': 'image/png', '.ico': 'image/x-icon', '.ttf': 'font/ttf', '.woff2': 'font/woff2',
-  '.json': 'application/json', '.pdf': 'application/pdf'
+  '.json': 'application/json', '.pdf': 'application/pdf', '.webmanifest': 'application/manifest+json'
 };
 function serveStatic(req, res) {
   let p = decodeURIComponent(new URL(req.url, 'http://x').pathname);
