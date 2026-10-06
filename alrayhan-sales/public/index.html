@@ -5,6 +5,15 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Alrayhan Sales</title>
 <link rel="icon" href="logo.svg">
+<!-- installable app (PWA): phone home screen + computer desktop -->
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#2F5D46">
+<meta name="application-name" content="Alrayhan Sales">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Alrayhan Sales">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -22,6 +31,7 @@
       <p class="form-error" id="loginError" role="alert"></p>
       <button class="btn btn-primary btn-wide" type="submit" data-t="signIn"></button>
     </form>
+    <button class="btn btn-ghost btn-wide install-btn js-install" type="button" hidden></button>
     <div class="login-tools">
       <button class="icon-btn js-lang" type="button" title="Language"></button>
       <button class="icon-btn js-theme" type="button" title="Theme"></button>
@@ -48,6 +58,7 @@
     <div class="tools">
       <span class="rate-chip" id="rateChip"></span>
       <button class="icon-btn currency-btn" id="currencyBtn" type="button"></button>
+      <button class="icon-btn js-install js-install-icon" type="button" hidden></button>
       <button class="icon-btn js-lang" type="button"></button>
       <button class="icon-btn js-theme" type="button"></button>
       <button class="icon-btn" id="logoutBtn" type="button"></button>
@@ -209,6 +220,17 @@
         <button type="submit" class="btn btn-primary" id="entrySave"></button>
       </div>
     </footer>
+  </form>
+</dialog>
+
+<!-- How to install the app (shown when the browser can't install it with one tap) -->
+<dialog id="installDlg" class="install-dlg">
+  <form method="dialog">
+    <img src="icons/icon-192.png" alt="" class="install-icon">
+    <h2 data-t="installTitle"></h2>
+    <ol id="installSteps"></ol>
+    <p class="install-note" id="installNote"></p>
+    <button class="btn btn-primary btn-wide" data-t="ok"></button>
   </form>
 </dialog>
 

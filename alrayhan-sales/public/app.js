@@ -33,6 +33,11 @@ const T = {
     e_read_only: 'حساب المشرف للاطلاع فقط ولا يمكنه إجراء تغييرات.', e_no_access: 'ليست لديك صلاحية لهذا القسم.', e_master_only: 'هذا الإجراء للماستر فقط.', e_bad_branch: 'الفرع غير صحيح.',
     saved: 'تم الحفظ', logout: 'تسجيل الخروج', currencyTip: 'تبديل العملة', langTip: 'English', themeTip: 'الوضع الليلي/النهاري',
     nameAr: 'الاسم بالعربي', nameEn: 'الاسم بالإنكليزي', saveBranches: 'حفظ الأسماء', sellerBadge: 'بائع', masterBadge: 'ماستر',
+    installApp: 'تثبيت التطبيق', installTip: 'تثبيت التطبيق على هذا الجهاز', installTitle: 'تثبيت Alrayhan Sales', ok: 'حسناً', installed: 'تم تثبيت التطبيق',
+    installIos: ['اضغط زر المشاركة ⎋ أسفل الشاشة في Safari', 'اختر «إضافة إلى الشاشة الرئيسية»', 'اضغط «إضافة» — ستظهر أيقونة الريحان على الشاشة'],
+    installAndroid: ['اضغط قائمة المتصفح ⋮ في الأعلى', 'اختر «تثبيت التطبيق» أو «إضافة إلى الشاشة الرئيسية»', 'اضغط «تثبيت»'],
+    installDesktop: ['في Chrome أو Edge اضغط أيقونة التثبيت ⊕ في شريط العنوان', 'أو من القائمة ⋮ ← «حفظ ومشاركة» ← «تثبيت الصفحة كتطبيق»', 'سيفتح النظام في نافذة خاصة ويظهر على سطح المكتب'],
+    installHttp: 'ملاحظة: التثبيت الكامل يحتاج رابطاً آمناً (https). على شبكة المحل استخدم «إنشاء اختصار» من قائمة المتصفح.',
     e_bad_login: 'اسم المستخدم أو كلمة المرور غير صحيحة.', e_too_many_attempts: 'محاولات كثيرة خاطئة. انتظر 10 دقائق ثم حاول مجدداً.',
     e_no_items: 'أدخل مادة واحدة على الأقل مع الكمية والسعر.', e_line: 'أكمل اسم المادة والكمية والسعر في كل سطر أو احذف السطر الفارغ.',
     e_username_taken: 'اسم المستخدم مستخدم مسبقاً. اختر اسماً آخر.', e_bad_username: 'اسم المستخدم بالأحرف الإنكليزية والأرقام فقط (3 أحرف على الأقل).',
@@ -71,6 +76,11 @@ const T = {
     e_read_only: 'Supervisor accounts are view-only and can’t make changes.', e_no_access: 'You don’t have access to this section.', e_master_only: 'Only the master can do this.', e_bad_branch: 'Invalid branch.',
     saved: 'Saved', logout: 'Sign out', currencyTip: 'Switch currency', langTip: 'العربية', themeTip: 'Light / dark mode',
     nameAr: 'Arabic name', nameEn: 'English name', saveBranches: 'Save names', sellerBadge: 'Seller', masterBadge: 'Master',
+    installApp: 'Install app', installTip: 'Install the app on this device', installTitle: 'Install Alrayhan Sales', ok: 'OK', installed: 'App installed',
+    installIos: ['Tap the Share button ⎋ at the bottom of Safari', 'Choose “Add to Home Screen”', 'Tap “Add” — the Alrayhan icon appears on your home screen'],
+    installAndroid: ['Tap the browser menu ⋮ at the top', 'Choose “Install app” or “Add to Home screen”', 'Tap “Install”'],
+    installDesktop: ['In Chrome or Edge, click the install icon ⊕ in the address bar', 'Or menu ⋮ → “Cast, save and share” → “Install page as app”', 'It opens in its own window and gets a desktop icon'],
+    installHttp: 'Note: full install needs a secure (https) link. On the shop network, use “Create shortcut” from the browser menu.',
     e_bad_login: 'Wrong username or password.', e_too_many_attempts: 'Too many wrong tries. Wait 10 minutes and try again.',
     e_no_items: 'Enter at least one item with a quantity and price.', e_line: 'Fill in item, qty and price on every line, or remove the empty line.',
     e_username_taken: 'That username is taken. Choose another.', e_bad_username: 'Use English letters and numbers only (at least 3).',
@@ -83,7 +93,8 @@ const T = {
 const ICONS = {
   moon: '<svg viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg>',
   sun: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>',
-  logout: '<svg viewBox="0 0 24 24"><path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3M10 16l-4-4 4-4M6 12h10"/></svg>'
+  logout: '<svg viewBox="0 0 24 24"><path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3M10 16l-4-4 4-4M6 12h10"/></svg>',
+  install: '<svg viewBox="0 0 24 24"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg>'
 };
 
 const pref = (k, d) => { try { return localStorage.getItem('ars_' + k) || d; } catch { return d; } };
@@ -151,6 +162,7 @@ function applyChrome() {
   $$('.js-theme').forEach(b => { b.innerHTML = S.theme === 'dark' ? ICONS.sun : ICONS.moon; b.title = t('themeTip'); b.setAttribute('aria-label', t('themeTip')); });
   const cb = $('#currencyBtn');
   cb.innerHTML = `<span class="glyph">${t('cur')[S.currency]}</span>`; cb.title = `${t('currencyTip')} (${t('curName')[S.currency]})`; cb.setAttribute('aria-label', cb.title);
+  renderInstall();
   $('#logoutBtn').innerHTML = ICONS.logout; $('#logoutBtn').title = t('logout'); $('#logoutBtn').setAttribute('aria-label', t('logout'));
   const logo = (S.settings || S.pub)?.logo;
   $$('.js-logo').forEach(i => { i.src = logo || 'logo.svg'; });
@@ -654,6 +666,38 @@ $$('#reportSeg button').forEach(b => b.addEventListener('click', () => {
 $('#reportBranch').addEventListener('change', e => { S.reportBranch = e.target.value; if (S.report) makeReport(); });
 $('#reportDate').addEventListener('change', () => { if (S.report) makeReport(); });
 $('#reportGo').addEventListener('click', makeReport);
+
+// ---------- install as app (PWA) ----------
+let installPrompt = null;
+const isStandalone = () => matchMedia('(display-mode: standalone)').matches || matchMedia('(display-mode: window-controls-overlay)').matches || navigator.standalone === true;
+const isIos = () => /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+function renderInstall() {
+  const show = !isStandalone();
+  $$('.js-install').forEach(b => {
+    b.hidden = !show;
+    if (b.classList.contains('js-install-icon')) { b.innerHTML = ICONS.install; b.title = t('installTip'); b.setAttribute('aria-label', t('installTip')); }
+    else b.textContent = t('installApp');
+  });
+}
+async function installApp() {
+  if (installPrompt) {
+    installPrompt.prompt();
+    const { outcome } = await installPrompt.userChoice;
+    installPrompt = null;
+    if (outcome === 'accepted') toast(t('installed'));
+    return;
+  }
+  const steps = isIos() ? t('installIos') : /android/i.test(navigator.userAgent) ? t('installAndroid') : t('installDesktop');
+  $('#installSteps').innerHTML = steps.map(x => `<li>${esc(x)}</li>`).join('');
+  $('#installNote').textContent = window.isSecureContext || isIos() ? '' : t('installHttp');
+  $('#installDlg').showModal();
+}
+$$('.js-install').forEach(b => b.addEventListener('click', installApp));
+addEventListener('beforeinstallprompt', e => { e.preventDefault(); installPrompt = e; renderInstall(); });
+addEventListener('appinstalled', () => { installPrompt = null; renderInstall(); });
+if ('serviceWorker' in navigator && window.isSecureContext) {
+  addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(err => console.warn('SW', err)));
+}
 
 // ---------- boot ----------
 (async function boot() {
