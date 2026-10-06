@@ -7,9 +7,9 @@ Local sales & purchases system with daily / weekly / monthly accounting history.
 2. Windows: double-click `start.bat`. Other systems: run `start.sh`.
 3. Open http://localhost:3000
 
-Default accounts (change them right away in Settings → Users):
-- master / master123  — full access (sell & buy, history, reports, settings, users)
-- seller / 1234       — sell & buy only
+First start: there are no default passwords. The server creates the `master` account and prints
+its password once in the server window — write it down, sign in, and create sellers in Settings → Users.
+Forgot it? Close the server, run `node server.js reset-password master`, start it again.
 
 ## Access levels
 | Level      | Sell & buy | History | Reports | Settings | Exchange rate |
