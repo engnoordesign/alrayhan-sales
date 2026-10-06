@@ -1,0 +1,18 @@
+# Alrayhan Sales — run with:  docker compose up -d --build
+services:
+  sales:
+    build: .
+    image: alrayhan-sales:latest
+    container_name: alrayhan-sales
+    restart: unless-stopped
+    init: true                     # clean shutdown on `docker compose down` / VPS reboot
+    environment:
+      - TZ=Asia/Baghdad            # daily backups and report dates use Mosul time
+    ports:
+      - "${SALES_PORT:-3000}:3000" # change SALES_PORT if another system uses 3000
+    volumes:
+      - sales-data:/app/data       # db.json + backups/ — survives rebuilds and updates
+
+volumes:
+  sales-data:
+    name: alrayhan-sales-data
