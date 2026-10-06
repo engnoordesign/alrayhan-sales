@@ -1,0 +1,31 @@
+# Alrayhan Sales — run with:  docker compose up -d --build
+# Meant to sit behind Caddy/nginx (HTTPS) on the same server.
+services:
+  sales:
+    build: .
+    image: alrayhan-sales:latest
+    container_name: alrayhan-sales
+    restart: unless-stopped
+    init: true                     # clean shutdown on `docker compose down` / VPS reboot
+    environment:
+      - TZ=Asia/Baghdad            # daily backups and report dates use Mosul time
+      - TRUST_PROXY=1              # real visitor IP + https come from Caddy (safe: port is localhost-only)
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD:-}   # optional first-run master password; otherwise one is generated and printed in the log
+    ports:
+      # 127.0.0.1 = only Caddy on this server can reach the app. Docker skips the ufw firewall,
+      # so publishing on 0.0.0.0 would expose plain HTTP to the internet.
+      - "127.0.0.1:${SALES_PORT:-3000}:3000"
+    volumes:
+      - sales-data:/app/data       # db.json + backups/ — survives rebuilds and updates
+    read_only: true                # app files can't be changed at runtime; only /app/data is writable
+    tmpfs:
+      - /tmp
+    cap_drop: [ALL]
+    security_opt:
+      - no-new-privileges:true
+    mem_limit: 512m
+    pids_limit: 200
+
+volumes:
+  sales-data:
+    name: alrayhan-sales-data

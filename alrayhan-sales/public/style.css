@@ -325,3 +325,18 @@ main { max-width: 1120px; margin: 0 auto; padding: 24px clamp(12px, 3vw, 32px) 6
   h3, .report-head { break-after: avoid; }
   tr { break-inside: avoid; }
 }
+
+/* ---------- install as app ---------- */
+.install-btn { margin-top: 12px; }
+.install-dlg {
+  width: min(420px, calc(100% - 24px)); border: 0; border-radius: var(--radius); padding: 0;
+  background: var(--surface); color: var(--ink);
+}
+.install-dlg::backdrop { background: rgba(10, 20, 15, .55); }
+.install-dlg form { padding: 24px; text-align: center; }
+.install-dlg h2 { font-family: var(--font-display); margin: 8px 0 12px; font-size: 1.4rem; }
+.install-icon { width: 72px; height: 72px; border-radius: 18px; }
+.install-dlg ol { text-align: start; margin: 0 0 12px; padding-inline-start: 1.4em; line-height: 1.8; }
+.install-note { color: var(--muted); font-size: .88rem; margin: 0 0 14px; }
+.install-note:empty { display: none; }
+@media (display-mode: standalone) { .js-install { display: none !important; } }
