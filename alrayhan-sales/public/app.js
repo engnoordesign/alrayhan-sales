@@ -20,7 +20,7 @@ const T = {
     lastDays: 'آخر 31 يوماً', lastWeeks: 'آخر 12 أسبوعاً (يبدأ الأسبوع يوم السبت)', lastMonths: 'آخر 12 شهراً',
     allBranches: 'كل الفروع', noData: 'لا توجد قيود في هذه الفترة.', dayOf: d => `قيود يوم ${d}`, weekOf: d => `أسبوع ${d}`,
     by: 'بواسطة', del: 'حذف', confirmDel: 'هل تريد حذف هذا القيد نهائياً؟', deleted: 'تم حذف القيد',
-    changePw: 'تغيير كلمة المرور', newPwPrompt: 'اكتب كلمة المرور الجديدة (4 أحرف على الأقل):', pwChanged: 'تم تغيير كلمة المرور',
+    changePw: 'تغيير كلمة المرور', newPwPrompt: 'اكتب كلمة المرور الجديدة (8 أحرف على الأقل):', pwChanged: 'تم تغيير كلمة المرور',
     confirmUserDel: n => `حذف المستخدم ${n}؟`, userAdded: 'تمت إضافة المستخدم', userDeleted: 'تم حذف المستخدم', you: '(أنت)',
     tabReports: 'التقارير', supervisorBadge: 'مشرف', roleSupervisor: 'مشرف (اطلاع فقط وتقارير)',
     workBranch: 'فرع العمل', anyBranch: 'أي فرع (يختاره عند الدخول)', allBranchesShort: 'كل الفروع', branchSaved: 'تم تحديد فرع العمل', roleSaved: 'تم تغيير الصلاحية',
@@ -41,7 +41,7 @@ const T = {
     e_bad_login: 'اسم المستخدم أو كلمة المرور غير صحيحة.', e_too_many_attempts: 'محاولات كثيرة خاطئة. انتظر 10 دقائق ثم حاول مجدداً.',
     e_no_items: 'أدخل مادة واحدة على الأقل مع الكمية والسعر.', e_line: 'أكمل اسم المادة والكمية والسعر في كل سطر أو احذف السطر الفارغ.',
     e_username_taken: 'اسم المستخدم مستخدم مسبقاً. اختر اسماً آخر.', e_bad_username: 'اسم المستخدم بالأحرف الإنكليزية والأرقام فقط (3 أحرف على الأقل).',
-    e_short_password: 'كلمة المرور قصيرة. استخدم 4 أحرف أو أكثر.', e_bad_logo: 'الصورة غير مدعومة أو حجمها أكبر من 1.5 ميغابايت.',
+    e_short_password: 'كلمة المرور قصيرة. استخدم 8 أحرف أو أكثر.', e_weak_password: 'كلمة المرور سهلة التخمين. اختر كلمة أقوى لا تشبه اسم المستخدم.', e_bad_password: 'كلمة المرور غير صالحة.', e_json_only: 'طلب غير صالح. حدّث الصفحة وحاول مجدداً.', e_bad_logo: 'الصورة غير مدعومة أو حجمها أكبر من 1.5 ميغابايت.',
     e_not_logged_in: 'انتهت الجلسة. سجّل الدخول من جديد.', e_network: 'لا يمكن الوصول إلى الخادم. تأكد أن نافذة النظام مفتوحة على الحاسبة.',
     e_generic: 'حدث خطأ. حاول مرة أخرى.', cur: { USD: '$', IQD: 'د.ع' }, curName: { USD: 'دولار', IQD: 'دينار' }
   },
@@ -63,7 +63,7 @@ const T = {
     lastDays: 'Last 31 days', lastWeeks: 'Last 12 weeks (weeks start Saturday)', lastMonths: 'Last 12 months',
     allBranches: 'All branches', noData: 'No entries in this period.', dayOf: d => `Entries on ${d}`, weekOf: d => `Week of ${d}`,
     by: 'by', del: 'Delete', confirmDel: 'Delete this entry permanently?', deleted: 'Entry deleted',
-    changePw: 'Change password', newPwPrompt: 'Type the new password (at least 4 characters):', pwChanged: 'Password changed',
+    changePw: 'Change password', newPwPrompt: 'Type the new password (at least 8 characters):', pwChanged: 'Password changed',
     confirmUserDel: n => `Delete user ${n}?`, userAdded: 'User added', userDeleted: 'User deleted', you: '(you)',
     tabReports: 'Reports', supervisorBadge: 'Supervisor', roleSupervisor: 'Supervisor (view & reports only)',
     workBranch: 'Works in', anyBranch: 'Any branch (chosen at sign-in)', allBranchesShort: 'All branches', branchSaved: 'Work branch set', roleSaved: 'Access changed',
@@ -84,7 +84,7 @@ const T = {
     e_bad_login: 'Wrong username or password.', e_too_many_attempts: 'Too many wrong tries. Wait 10 minutes and try again.',
     e_no_items: 'Enter at least one item with a quantity and price.', e_line: 'Fill in item, qty and price on every line, or remove the empty line.',
     e_username_taken: 'That username is taken. Choose another.', e_bad_username: 'Use English letters and numbers only (at least 3).',
-    e_short_password: 'Password is too short. Use 4 or more characters.', e_bad_logo: 'Image type not supported or larger than 1.5 MB.',
+    e_short_password: 'Password is too short. Use 8 or more characters.', e_weak_password: 'That password is too easy to guess. Pick a stronger one that isn’t the username.', e_bad_password: 'Invalid password.', e_json_only: 'Invalid request. Refresh the page and try again.', e_bad_logo: 'Image type not supported or larger than 1.5 MB.',
     e_not_logged_in: 'Your session ended. Sign in again.', e_network: 'Can’t reach the server. Make sure the system window is open on the computer.',
     e_generic: 'Something went wrong. Try again.', cur: { USD: '$', IQD: 'IQD' }, curName: { USD: 'Dollar', IQD: 'Dinar' }
   }
