@@ -22,6 +22,8 @@ const T = {
     by: 'بواسطة', del: 'حذف', confirmDel: 'هل تريد حذف هذا القيد نهائياً؟', deleted: 'تم حذف القيد',
     changePw: 'تغيير كلمة المرور', newPwPrompt: 'اكتب كلمة المرور الجديدة (4 أحرف على الأقل):', pwChanged: 'تم تغيير كلمة المرور',
     confirmUserDel: n => `حذف المستخدم ${n}؟`, userAdded: 'تمت إضافة المستخدم', userDeleted: 'تم حذف المستخدم', you: '(أنت)',
+    typeAll: 'الكل', typeSell: 'المبيعات', typeBuy: 'المشتريات', showType: 'عرض', onlySales: 'المبيعات فقط', onlyBuys: 'المشتريات فقط',
+    topBought: 'أكثر المواد شراءً', colQtyBought: 'الكمية المشتراة',
     tabReports: 'التقارير', supervisorBadge: 'مشرف', roleSupervisor: 'مشرف (اطلاع فقط وتقارير)',
     workBranch: 'فرع العمل', anyBranch: 'أي فرع (يختاره عند الدخول)', allBranchesShort: 'كل الفروع', branchSaved: 'تم تحديد فرع العمل', roleSaved: 'تم تغيير الصلاحية',
     rateChip: r => `1$ = ${r} د.ع`, rateChipTip: 'سعر صرف الدولار — يغيّره الماستر فقط', workingIn: b => `تعمل الآن في ${b}`,
@@ -60,6 +62,8 @@ const T = {
     by: 'by', del: 'Delete', confirmDel: 'Delete this entry permanently?', deleted: 'Entry deleted',
     changePw: 'Change password', newPwPrompt: 'Type the new password (at least 4 characters):', pwChanged: 'Password changed',
     confirmUserDel: n => `Delete user ${n}?`, userAdded: 'User added', userDeleted: 'User deleted', you: '(you)',
+    typeAll: 'All', typeSell: 'Sales', typeBuy: 'Purchases', showType: 'Show', onlySales: 'Sales only', onlyBuys: 'Purchases only',
+    topBought: 'Most-bought items', colQtyBought: 'Qty bought',
     tabReports: 'Reports', supervisorBadge: 'Supervisor', roleSupervisor: 'Supervisor (view & reports only)',
     workBranch: 'Works in', anyBranch: 'Any branch (chosen at sign-in)', allBranchesShort: 'All branches', branchSaved: 'Work branch set', roleSaved: 'Access changed',
     rateChip: r => `1$ = ${r} IQD`, rateChipTip: 'Dollar exchange rate — only the master can change it', workingIn: b => `You are working in ${b}`,
@@ -91,7 +95,7 @@ const setPref = (k, v) => { try { localStorage.setItem('ars_' + k, v); } catch {
 
 const S = {
   lang: pref('lang', 'ar'), theme: pref('theme', 'light'), currency: pref('currency', 'IQD'), branch: pref('branch', 'b1'),
-  user: null, settings: null, pub: null, view: 'desk', period: 'day', branchFilter: 'all', reportPeriod: 'day', reportBranch: 'all', report: null, entryType: 'sell', openPeriod: null, history: []
+  user: null, settings: null, pub: null, view: 'desk', period: 'day', branchFilter: 'all', reportPeriod: 'day', reportBranch: 'all', typeFilter: pref('type', 'all'), reportType: pref('rtype', 'all'), report: null, entryType: 'sell', openPeriod: null, history: []
 };
 
 const $ = s => document.querySelector(s);
@@ -183,6 +187,8 @@ function fillBranchSelects() {
 }
 function rerender() {
   applyChrome();
+  $('#typeSegWrap').innerHTML = typeSegHtml('typeSeg', S.typeFilter);
+  $('#reportTypeWrap').innerHTML = typeSegHtml('reportTypeSeg', S.reportType);
   if (!S.user) return;
   renderRecent();
   if (S.view === 'history') { renderHistory(); if (lastSearch) searchDay(lastSearch, false); }
@@ -397,11 +403,23 @@ function sumUp(list) {
   for (const tx of list) { const v = conv(tx.total, tx.currency, tx.rate); if (tx.type === 'sell') sales += v; else buys += v; }
   return { sales, buys, net: sales - buys, count: list.length };
 }
-function totalsHtml(s) {
-  return `
-    <div class="total-cell sell"><div class="lbl">${t('totalSales')}</div><div class="val">${money(s.sales)}</div></div>
-    <div class="total-cell buy"><div class="lbl">${t('totalBuys')}</div><div class="val">${money(s.buys)}</div></div>
-    <div class="total-cell"><div class="lbl">${t('net')}</div><div class="val ${s.net < 0 ? 'neg' : ''}">${money(s.net)}</div></div>`;
+// type filter: 'all' | 'sell' | 'buy'
+const byType = (list, type) => (type === 'all' ? list : list.filter(tx => tx.type === type));
+function totalsCells(s, type = 'all', withCount = false) {
+  const cells = [];
+  if (type !== 'buy') cells.push(`<div class="total-cell sell"><div class="lbl">${t('totalSales')}</div><div class="val">${money(s.sales)}</div></div>`);
+  if (type !== 'sell') cells.push(`<div class="total-cell buy"><div class="lbl">${t('totalBuys')}</div><div class="val">${money(s.buys)}</div></div>`);
+  if (type === 'all') cells.push(`<div class="total-cell"><div class="lbl">${t('net')}</div><div class="val ${s.net < 0 ? 'neg' : ''}">${money(s.net)}</div></div>`);
+  if (withCount || type !== 'all') cells.push(`<div class="total-cell"><div class="lbl">${t('entriesCount')}</div><div class="val">${s.count}</div></div>`);
+  return cells;
+}
+const totalsBox = (s, type, withCount) => { const c = totalsCells(s, type, withCount); return `<div class="totals" style="--cols:${c.length}">${c.join('')}</div>`; };
+function typeSegHtml(id, value) {
+  return `<div class="seg type-seg" id="${id}" role="tablist" aria-label="${esc(t('showType'))}">` +
+    [['all', 'typeAll'], ['sell', 'typeSell'], ['buy', 'typeBuy']].map(([v, k]) => `<button type="button" data-type="${v}" class="${value === v ? 'is-active' : ''}">${t(k)}</button>`).join('') + '</div>';
+}
+function historyExportHref() {
+  return `/api/export.csv?branch=${S.branchFilter}&type=${S.typeFilter}&name=alrayhan-${S.typeFilter === 'all' ? 'sales' : S.typeFilter === 'sell' ? 'sales-only' : 'purchases-only'}`;
 }
 function txHtml(tx) {
   const d = new Date(tx.at);
@@ -421,18 +439,22 @@ function txHtml(tx) {
 }
 function renderHistory() {
   $$('#periodSeg button').forEach(b => b.classList.toggle('is-active', b.dataset.period === S.period));
+  $$('#typeSeg button').forEach(b => b.classList.toggle('is-active', b.dataset.type === S.typeFilter));
+  $('#view-history').dataset.type = S.typeFilter;
+  $('#histExport').href = historyExportHref();
+  const shown = byType(S.history, S.typeFilter);
   const groups = new Map();
-  for (const tx of S.history) { const k = periodKey(new Date(tx.at)); if (!groups.has(k)) groups.set(k, []); groups.get(k).push(tx); }
+  for (const tx of shown) { const k = periodKey(new Date(tx.at)); if (!groups.has(k)) groups.set(k, []); groups.get(k).push(tx); }
   const keys = [...groups.keys()].sort().reverse();
-  $('#totals').innerHTML = totalsHtml(sumUp(S.history));
+  { const c = totalsCells(sumUp(shown), S.typeFilter); $('#totals').style.setProperty('--cols', c.length); $('#totals').innerHTML = c.join(''); }
   $('#histTitle').textContent = S.period === 'day' ? t('lastDays') : S.period === 'week' ? t('lastWeeks') : t('lastMonths');
   const tb = $('#periodTable tbody');
   if (!keys.length) { tb.innerHTML = `<tr class="empty-row"><td colspan="5">${t('noData')}</td></tr>`; return; }
   tb.innerHTML = keys.map(k => {
     const list = groups.get(k); const s = sumUp(list); const open = S.openPeriod === k;
     const row = `<tr class="period ${open ? 'is-open' : ''}" data-key="${k}" tabindex="0" aria-expanded="${open}">
-      <td>${esc(periodLabel(k))}</td><td class="money">${esc(fmt(s.sales))}</td><td class="money">${esc(fmt(s.buys))}</td>
-      <td class="money ${s.net < 0 ? 'neg' : ''}">${esc(fmt(s.net))}</td><td class="num">${s.count}</td></tr>`;
+      <td>${esc(periodLabel(k))}</td><td class="money c-sales">${esc(fmt(s.sales))}</td><td class="money c-buys">${esc(fmt(s.buys))}</td>
+      <td class="money c-net ${s.net < 0 ? 'neg' : ''}">${esc(fmt(s.net))}</td><td class="num">${s.count}</td></tr>`;
     const detail = open ? `<tr class="detail"><td colspan="5"><div class="tx-list">${[...list].reverse().map(txHtml).join('')}</div></td></tr>` : '';
     return row + detail;
   }).join('');
@@ -445,6 +467,12 @@ $('#periodTable').addEventListener('click', e => {
 $('#periodTable').addEventListener('keydown', e => { if ((e.key === 'Enter' || e.key === ' ') && e.target.matches('tr.period')) { e.preventDefault(); e.target.click(); } });
 $$('#periodSeg button').forEach(b => b.addEventListener('click', () => { S.period = b.dataset.period; S.openPeriod = null; loadHistory(); }));
 $('#branchFilter').addEventListener('change', e => { S.branchFilter = e.target.value; loadHistory(); });
+$('#typeSegWrap').innerHTML = typeSegHtml('typeSeg', S.typeFilter);
+$('#typeSegWrap').addEventListener('click', e => {
+  const b = e.target.closest('button[data-type]'); if (!b) return;
+  S.typeFilter = b.dataset.type; setPref('type', S.typeFilter); S.openPeriod = null;
+  renderHistory(); if (lastSearch) searchDay(lastSearch, false);
+});
 
 async function searchDay(value, scroll = true) {
   lastSearch = value;
@@ -455,7 +483,8 @@ async function searchDay(value, scroll = true) {
   catch (err) { toast(errText(err)); return; }
   const box = $('#dayDetail');
   box.className = 'day-detail';
-  box.innerHTML = `<h2>${esc(t('dayOf', fmtDate(from)))}</h2><div class="totals">${totalsHtml(sumUp(list))}</div>
+  list = byType(list, S.typeFilter);
+  box.innerHTML = `<h2>${esc(t('dayOf', fmtDate(from)))}${S.typeFilter === 'all' ? '' : ` — ${t(S.typeFilter === 'sell' ? 'onlySales' : 'onlyBuys')}`}</h2>${totalsBox(sumUp(list), S.typeFilter)}
     <div class="tx-list">${list.length ? [...list].reverse().map(txHtml).join('') : `<p class="muted">${t('noData')}</p>`}</div>`;
   if (scroll) box.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
@@ -558,7 +587,7 @@ async function makeReport() {
   const btn = $('#reportGo'); btn.disabled = true;
   try {
     const list = await api(`/transactions?from=${encodeURIComponent(from.toISOString())}&to=${encodeURIComponent(to.toISOString())}&branch=${S.reportBranch}`);
-    S.report = { period: S.reportPeriod, branch: S.reportBranch, from, to, list, at: new Date() };
+    S.report = { period: S.reportPeriod, branch: S.reportBranch, from, to, all: list, at: new Date() };
     renderReport();
   } catch (err) { toast(errText(err)); }
   finally { btn.disabled = false; }
@@ -569,18 +598,19 @@ function groupSum(list, keyFn) {
   return [...m.entries()].map(([k, l]) => ({ key: k, ...sumUp(l) }));
 }
 function sumRows(rows, labelFn) {
-  return rows.map(r => `<tr><td>${esc(labelFn(r.key))}</td><td class="money">${esc(fmt(r.sales))}</td><td class="money">${esc(fmt(r.buys))}</td>
-    <td class="money ${r.net < 0 ? 'neg' : ''}">${esc(fmt(r.net))}</td><td class="num">${r.count}</td></tr>`).join('');
+  return rows.map(r => `<tr><td>${esc(labelFn(r.key))}</td><td class="money c-sales">${esc(fmt(r.sales))}</td><td class="money c-buys">${esc(fmt(r.buys))}</td>
+    <td class="money c-net ${r.net < 0 ? 'neg' : ''}">${esc(fmt(r.net))}</td><td class="num">${r.count}</td></tr>`).join('');
 }
 function sumTable(title, firstCol, rows, labelFn) {
-  return `<h3>${title}</h3><div class="table-wrap"><table class="table"><thead><tr><th>${firstCol}</th><th class="money">${t('colSales')}</th>
-    <th class="money">${t('colBuys')}</th><th class="money">${t('colNet')}</th><th class="num">${t('colCount')}</th></tr></thead>
+  return `<h3>${title}</h3><div class="table-wrap"><table class="table"><thead><tr><th>${firstCol}</th><th class="money c-sales">${t('colSales')}</th>
+    <th class="money c-buys">${t('colBuys')}</th><th class="money c-net">${t('colNet')}</th><th class="num">${t('colCount')}</th></tr></thead>
     <tbody>${rows.length ? sumRows(rows, labelFn) : `<tr class="empty-row"><td colspan="5">${t('noData')}</td></tr>`}</tbody></table></div>`;
 }
 function renderReport() {
   const R = S.report; if (!R) return;
-  const list = R.list, s = sumUp(list);
-  const title = R.period === 'day' ? t('dailyReport') : R.period === 'week' ? t('weeklyReport') : t('monthlyReport');
+  const type = S.reportType, list = byType(R.all, type), s = sumUp(list);
+  const title = (R.period === 'day' ? t('dailyReport') : R.period === 'week' ? t('weeklyReport') : t('monthlyReport'))
+    + (type === 'all' ? '' : ` (${t(type === 'sell' ? 'onlySales' : 'onlyBuys')})`);
   const branchTxt = R.branch === 'all' ? t('allBranches') : branchName(R.branch);
   const logo = S.settings?.logo || 'logo.svg';
   const shop = S.lang === 'ar' ? S.settings.shopNameAr : S.settings.shopName;
@@ -591,17 +621,18 @@ function renderReport() {
   const dayLabel = k => { const [y, m, d] = k.split('-').map(Number); return fmtDate(new Date(y, m - 1, d), { weekday: 'long', day: 'numeric', month: 'short' }); };
 
   const items = new Map();
-  for (const tx of list) if (tx.type === 'sell') for (const it of tx.items) {
+  const itemType = type === 'buy' ? 'buy' : 'sell';
+  for (const tx of list) if (tx.type === itemType) for (const it of tx.items) {
     const k = it.name.toLowerCase(); const cur = items.get(k) || { name: it.name, qty: 0, amount: 0 };
     cur.qty += it.qty; cur.amount += conv(it.subtotal, tx.currency, tx.rate); items.set(k, cur);
   }
   const top = [...items.values()].sort((a, b) => b.amount - a.amount).slice(0, 15);
 
-  const csv = `/api/export.csv?from=${encodeURIComponent(R.from.toISOString())}&to=${encodeURIComponent(R.to.toISOString())}&branch=${R.branch}&name=alrayhan-${R.period}-report-${dayKey(R.from)}`;
+  const csv = `/api/export.csv?from=${encodeURIComponent(R.from.toISOString())}&to=${encodeURIComponent(R.to.toISOString())}&branch=${R.branch}&type=${type}&name=alrayhan-${R.period}-report-${type === 'all' ? '' : type === 'sell' ? 'sales-' : 'purchases-'}${dayKey(R.from)}`;
   const nf = new Intl.NumberFormat('en-US');
 
   $('#report').innerHTML = `
-  <article class="report">
+  <article class="report" data-type="${type}">
     <header class="report-head">
       <img src="${esc(logo)}" alt="">
       <div>
@@ -615,17 +646,14 @@ function renderReport() {
       </div>
     </header>
 
-    <div class="totals">
-      ${totalsHtml(s)}
-      <div class="total-cell"><div class="lbl">${t('entriesCount')}</div><div class="val">${s.count}</div></div>
-    </div>
+    ${totalsBox(s, type, true)}
 
     ${R.branch === 'all' ? sumTable(t('byBranch'), t('colBranch'), byBranch, branchName) : ''}
     ${sumTable(t('bySeller'), t('colUser'), byUser, k => k)}
     ${R.period === 'day' ? '' : sumTable(t('byDay'), t('colDay'), byDay, dayLabel)}
 
-    <h3>${t('topItems')}</h3>
-    <div class="table-wrap"><table class="table"><thead><tr><th>${t('item')}</th><th class="num">${t('colQtySold')}</th><th class="money">${t('colAmount')}</th></tr></thead>
+    <h3>${t(itemType === 'buy' ? 'topBought' : 'topItems')}</h3>
+    <div class="table-wrap"><table class="table"><thead><tr><th>${t('item')}</th><th class="num">${t(itemType === 'buy' ? 'colQtyBought' : 'colQtySold')}</th><th class="money">${t('colAmount')}</th></tr></thead>
       <tbody>${top.length ? top.map(i => `<tr><td>${esc(i.name)}</td><td class="num">${nf.format(i.qty)}</td><td class="money">${esc(fmt(i.amount))}</td></tr>`).join('')
         : `<tr class="empty-row"><td colspan="3">${t('noData')}</td></tr>`}</tbody></table></div>
 
@@ -654,6 +682,13 @@ $$('#reportSeg button').forEach(b => b.addEventListener('click', () => {
 $('#reportBranch').addEventListener('change', e => { S.reportBranch = e.target.value; if (S.report) makeReport(); });
 $('#reportDate').addEventListener('change', () => { if (S.report) makeReport(); });
 $('#reportGo').addEventListener('click', makeReport);
+$('#reportTypeWrap').innerHTML = typeSegHtml('reportTypeSeg', S.reportType);
+$('#reportTypeWrap').addEventListener('click', e => {
+  const b = e.target.closest('button[data-type]'); if (!b) return;
+  S.reportType = b.dataset.type; setPref('rtype', S.reportType);
+  $$('#reportTypeSeg button').forEach(x => x.classList.toggle('is-active', x === b));
+  if (S.report) renderReport();
+});
 
 // ---------- boot ----------
 (async function boot() {

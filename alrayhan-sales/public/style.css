@@ -205,7 +205,7 @@ main { max-width: 1120px; margin: 0 auto; padding: 24px clamp(12px, 3vw, 32px) 6
 .date-search { display: flex; gap: 6px; }
 .date-search .field { width: auto; }
 
-.totals { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; margin-bottom: 24px; }
+.totals { display: grid; grid-template-columns: repeat(var(--cols, 3), 1fr); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; margin-bottom: 24px; }
 .total-cell { background: var(--surface); padding: 16px 20px; }
 .total-cell .lbl { color: var(--muted); font-size: .9rem; }
 .total-cell .val { font-family: var(--font-display); font-size: 1.7rem; font-weight: 700; font-variant-numeric: tabular-nums; }
@@ -261,7 +261,12 @@ main { max-width: 1120px; margin: 0 auto; padding: 24px clamp(12px, 3vw, 32px) 6
 .report h3 { margin: 24px 0 10px; }
 .report .table-wrap { border-radius: var(--radius-sm); }
 .report .table td.items { white-space: normal; min-width: 220px; font-size: .9rem; }
-.report .totals { grid-template-columns: repeat(4, 1fr); margin-bottom: 8px; }
+.report .totals { grid-template-columns: repeat(var(--cols, 4), 1fr); margin-bottom: 8px; }
+/* sales / purchases filter: hide the columns that don't apply */
+[data-type="sell"] .c-buys, [data-type="sell"] .c-net,
+[data-type="buy"] .c-sales, [data-type="buy"] .c-net { display: none; }
+.type-seg button[data-type="sell"].is-active { color: var(--basil); }
+.type-seg button[data-type="buy"].is-active { color: var(--oud); }
 .report-foot { color: var(--muted); font-size: .85rem; margin-top: 20px; }
 .kind-cell.sell { color: var(--basil); font-weight: 600; }
 .kind-cell.buy { color: var(--oud); font-weight: 600; }

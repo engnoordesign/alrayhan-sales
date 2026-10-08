@@ -91,12 +91,13 @@
           <button data-period="week" data-t="weekly"></button>
           <button data-period="month" data-t="monthly"></button>
         </div>
+        <div id="typeSegWrap"></div>
         <select id="branchFilter" class="field"></select>
         <form class="date-search" id="dateSearch">
           <input type="date" id="searchDate" class="field" required>
           <button class="btn btn-primary" type="submit" data-t="search"></button>
         </form>
-        <a class="btn btn-ghost" href="/api/export.csv" data-t="exportCsv"></a>
+        <a class="btn btn-ghost" id="histExport" href="/api/export.csv" data-t="exportCsv"></a>
       </div>
 
       <div class="totals" id="totals"></div>
@@ -104,7 +105,7 @@
       <div class="table-wrap">
         <table class="table" id="periodTable">
           <thead><tr>
-            <th data-t="colPeriod"></th><th class="money" data-t="colSales"></th><th class="money" data-t="colBuys"></th><th class="money" data-t="colNet"></th><th class="num" data-t="colCount"></th>
+            <th data-t="colPeriod"></th><th class="money c-sales" data-t="colSales"></th><th class="money c-buys" data-t="colBuys"></th><th class="money c-net" data-t="colNet"></th><th class="num" data-t="colCount"></th>
           </tr></thead>
           <tbody></tbody>
         </table>
@@ -120,6 +121,7 @@
           <button data-period="week" data-t="weeklyReport"></button>
           <button data-period="month" data-t="monthlyReport"></button>
         </div>
+        <div id="reportTypeWrap"></div>
         <label class="ctl"><span data-t="reportFor"></span><input type="date" id="reportDate" class="field" required></label>
         <select id="reportBranch" class="field js-branch-filter"></select>
         <button class="btn btn-primary" id="reportGo" type="button" data-t="makeReport"></button>
