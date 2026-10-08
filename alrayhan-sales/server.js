@@ -290,6 +290,7 @@ async function api(req, res, url) {
   if (route === '/export.csv' && method === 'GET') {
     if (!inspectOnly()) return;
     const from = url.searchParams.get('from'), to = url.searchParams.get('to'), branchQ = url.searchParams.get('branch');
+    const typeQ = url.searchParams.get('type');
     const fromD = from ? new Date(from) : null, toD = to ? new Date(to) : null;
     const name = cleanText(url.searchParams.get('name') || 'alrayhan-sales', 60).replace(/[^A-Za-z0-9_.-]/g, '-');
     const rows = [['no', 'date', 'time', 'type', 'branch', 'item', 'qty', 'price', 'subtotal', 'currency', 'rate_iqd_per_usd', 'user', 'note']];
@@ -298,6 +299,7 @@ async function api(req, res, url) {
       if (fromD && d < fromD) continue;
       if (toD && d >= toD) continue;
       if (branchQ && branchQ !== 'all' && t.branch !== branchQ) continue;
+      if (typeQ === 'sell' || typeQ === 'buy') { if (t.type !== typeQ) continue; }
       const br = db.settings.branches.find(b => b.id === t.branch);
       for (const it of t.items) rows.push([t.no, d.toLocaleDateString('en-CA'), d.toLocaleTimeString('en-GB'), t.type, br ? br.nameEn : t.branch, it.name, it.qty, it.price, it.subtotal, t.currency, t.rate, t.userName, t.note]);
     }
