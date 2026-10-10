@@ -22,6 +22,8 @@ const T = {
     by: 'بواسطة', del: 'حذف', confirmDel: 'هل تريد حذف هذا القيد نهائياً؟', deleted: 'تم حذف القيد',
     changePw: 'تغيير كلمة المرور', newPwPrompt: 'اكتب كلمة المرور الجديدة (8 أحرف على الأقل):', pwChanged: 'تم تغيير كلمة المرور',
     confirmUserDel: n => `حذف المستخدم ${n}؟`, userAdded: 'تمت إضافة المستخدم', userDeleted: 'تم حذف المستخدم', you: '(أنت)',
+    typeAll: 'الكل', typeSell: 'المبيعات', typeBuy: 'المشتريات', showType: 'عرض', onlySales: 'المبيعات فقط', onlyBuys: 'المشتريات فقط',
+    topBought: 'أكثر المواد شراءً', colQtyBought: 'الكمية المشتراة',
     tabReports: 'التقارير', supervisorBadge: 'مشرف', roleSupervisor: 'مشرف (اطلاع فقط وتقارير)',
     workBranch: 'فرع العمل', anyBranch: 'أي فرع (يختاره عند الدخول)', allBranchesShort: 'كل الفروع', branchSaved: 'تم تحديد فرع العمل', roleSaved: 'تم تغيير الصلاحية',
     rateChip: r => `1$ = ${r} د.ع`, rateChipTip: 'سعر صرف الدولار — يغيّره الماستر فقط', workingIn: b => `تعمل الآن في ${b}`,
@@ -32,7 +34,9 @@ const T = {
     colUser: 'المستخدم', colBranch: 'الفرع', colDay: 'اليوم', colNo: 'رقم', colWhen: 'الوقت', colType: 'النوع', colItems: 'المواد', colTotal: 'المبلغ', colQtySold: 'الكمية المباعة', colAmount: 'المبلغ',
     e_read_only: 'حساب المشرف للاطلاع فقط ولا يمكنه إجراء تغييرات.', e_no_access: 'ليست لديك صلاحية لهذا القسم.', e_master_only: 'هذا الإجراء للماستر فقط.', e_bad_branch: 'الفرع غير صحيح.',
     saved: 'تم الحفظ', logout: 'تسجيل الخروج', currencyTip: 'تبديل العملة', langTip: 'English', themeTip: 'الوضع الليلي/النهاري',
-    nameAr: 'الاسم بالعربي', nameEn: 'الاسم بالإنكليزي', saveBranches: 'حفظ الأسماء', sellerBadge: 'بائع', masterBadge: 'ماستر',
+    nameAr: 'الاسم بالعربي', nameEn: 'الاسم بالإنكليزي', saveBranches: 'حفظ الأسماء', sellerBadge: 'بائع', masterBadge: 'ماستر', serviceBadge: 'الدعم الفني',
+    edit: 'تعديل', editUser: 'تعديل المستخدم', newPassword: 'كلمة مرور جديدة', newPwHint: 'اتركها فارغة لإبقاء كلمة المرور الحالية', userSaved: 'تم حفظ التعديلات', usernameHint: 'أحرف إنكليزية وأرقام فقط، يُستخدم لتسجيل الدخول',
+    e_last_master: 'لا يمكن حذف أو تغيير آخر حساب ماستر.', e_bad_role: 'صلاحية غير صحيحة.', e_not_found: 'المستخدم غير موجود.',
     installApp: 'تثبيت التطبيق', installTip: 'تثبيت التطبيق على هذا الجهاز', installTitle: 'تثبيت Alrayhan Sales', ok: 'حسناً', installed: 'تم تثبيت التطبيق',
     installIos: ['اضغط زر المشاركة ⎋ أسفل الشاشة في Safari', 'اختر «إضافة إلى الشاشة الرئيسية»', 'اضغط «إضافة» — ستظهر أيقونة الريحان على الشاشة'],
     installAndroid: ['اضغط قائمة المتصفح ⋮ في الأعلى', 'اختر «تثبيت التطبيق» أو «إضافة إلى الشاشة الرئيسية»', 'اضغط «تثبيت»'],
@@ -65,6 +69,8 @@ const T = {
     by: 'by', del: 'Delete', confirmDel: 'Delete this entry permanently?', deleted: 'Entry deleted',
     changePw: 'Change password', newPwPrompt: 'Type the new password (at least 8 characters):', pwChanged: 'Password changed',
     confirmUserDel: n => `Delete user ${n}?`, userAdded: 'User added', userDeleted: 'User deleted', you: '(you)',
+    typeAll: 'All', typeSell: 'Sales', typeBuy: 'Purchases', showType: 'Show', onlySales: 'Sales only', onlyBuys: 'Purchases only',
+    topBought: 'Most-bought items', colQtyBought: 'Qty bought',
     tabReports: 'Reports', supervisorBadge: 'Supervisor', roleSupervisor: 'Supervisor (view & reports only)',
     workBranch: 'Works in', anyBranch: 'Any branch (chosen at sign-in)', allBranchesShort: 'All branches', branchSaved: 'Work branch set', roleSaved: 'Access changed',
     rateChip: r => `1$ = ${r} IQD`, rateChipTip: 'Dollar exchange rate — only the master can change it', workingIn: b => `You are working in ${b}`,
@@ -75,7 +81,9 @@ const T = {
     colUser: 'User', colBranch: 'Branch', colDay: 'Day', colNo: 'No.', colWhen: 'Time', colType: 'Type', colItems: 'Items', colTotal: 'Amount', colQtySold: 'Qty sold', colAmount: 'Amount',
     e_read_only: 'Supervisor accounts are view-only and can’t make changes.', e_no_access: 'You don’t have access to this section.', e_master_only: 'Only the master can do this.', e_bad_branch: 'Invalid branch.',
     saved: 'Saved', logout: 'Sign out', currencyTip: 'Switch currency', langTip: 'العربية', themeTip: 'Light / dark mode',
-    nameAr: 'Arabic name', nameEn: 'English name', saveBranches: 'Save names', sellerBadge: 'Seller', masterBadge: 'Master',
+    nameAr: 'Arabic name', nameEn: 'English name', saveBranches: 'Save names', sellerBadge: 'Seller', masterBadge: 'Master', serviceBadge: 'Service',
+    edit: 'Edit', editUser: 'Edit user', newPassword: 'New password', newPwHint: 'Leave empty to keep the current password', userSaved: 'Changes saved', usernameHint: 'English letters and numbers only — used to sign in',
+    e_last_master: 'The last master account can’t be removed or changed.', e_bad_role: 'Invalid access level.', e_not_found: 'User not found.',
     installApp: 'Install app', installTip: 'Install the app on this device', installTitle: 'Install Alrayhan Sales', ok: 'OK', installed: 'App installed',
     installIos: ['Tap the Share button ⎋ at the bottom of Safari', 'Choose “Add to Home Screen”', 'Tap “Add” — the Alrayhan icon appears on your home screen'],
     installAndroid: ['Tap the browser menu ⋮ at the top', 'Choose “Install app” or “Add to Home screen”', 'Tap “Install”'],
@@ -102,7 +110,7 @@ const setPref = (k, v) => { try { localStorage.setItem('ars_' + k, v); } catch {
 
 const S = {
   lang: pref('lang', 'ar'), theme: pref('theme', 'light'), currency: pref('currency', 'IQD'), branch: pref('branch', 'b1'),
-  user: null, settings: null, pub: null, view: 'desk', period: 'day', branchFilter: 'all', reportPeriod: 'day', reportBranch: 'all', report: null, entryType: 'sell', openPeriod: null, history: []
+  user: null, settings: null, pub: null, view: 'desk', period: 'day', branchFilter: 'all', reportPeriod: 'day', reportBranch: 'all', typeFilter: pref('type', 'all'), reportType: pref('rtype', 'all'), report: null, entryType: 'sell', openPeriod: null, history: []
 };
 
 const $ = s => document.querySelector(s);
@@ -140,14 +148,32 @@ function conv(amount, from, rate, to = S.currency) {
 }
 const money = (amount, cur) => `<span class="money">${esc(fmt(amount, cur))}</span>`;
 
+// Phones show tables as stacked cards: every cell gets its column title (data-label) to show beside the value.
+// The first column becomes the card title, except number columns (No.) which keep their label.
+function labelTables(root) {
+  const tables = root.matches('table.table') ? [root] : [...root.querySelectorAll('table.table')];
+  tables.forEach(tbl => {
+    const heads = [...tbl.querySelectorAll('thead th')].map(th => ({ text: th.textContent.trim(), num: th.classList.contains('num') }));
+    tbl.querySelectorAll('tbody tr').forEach(tr => {
+      [...tr.children].forEach((td, i) => {
+        if (td.colSpan > 1 || !heads[i]) return;
+        if (i === 0 && !heads[0].num) { td.classList.add('cell-title'); return; }
+        if (heads[i].text) td.dataset.label = heads[i].text;
+      });
+    });
+  });
+}
+
 // ---------- dates ----------
 const pad = n => String(n).padStart(2, '0');
 const dayKey = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 function weekStart(d) { const x = new Date(d); x.setHours(0, 0, 0, 0); x.setDate(x.getDate() - ((x.getDay() + 1) % 7)); return x; } // Saturday
 const fmtDate = (d, o = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }) => new Intl.DateTimeFormat(locale(), o).format(d);
 const fmtTime = d => new Intl.DateTimeFormat(locale(), { hour: 'numeric', minute: '2-digit' }).format(d);
-const roleBadge = r => (r === 'master' ? t('masterBadge') : r === 'supervisor' ? t('supervisorBadge') : t('sellerBadge'));
-const ROLE_VIEWS = { master: ['desk', 'history', 'reports', 'settings'], supervisor: ['history', 'reports'], seller: ['desk'] };
+const roleBadge = r => (r === 'service' ? t('serviceBadge') : r === 'master' ? t('masterBadge') : r === 'supervisor' ? t('supervisorBadge') : t('sellerBadge'));
+// 'service' = hidden maintenance account with every master power
+const ROLE_VIEWS = { service: ['desk', 'history', 'reports', 'settings'], master: ['desk', 'history', 'reports', 'settings'], supervisor: ['history', 'reports'], seller: ['desk'] };
+const isManager = () => S.user?.role === 'master' || S.user?.role === 'service';
 const canView = v => (ROLE_VIEWS[S.user?.role] || ['desk']).includes(v);
 const branchName = id => { const b = (S.settings || S.pub)?.branches.find(x => x.id === id); return b ? (S.lang === 'ar' ? b.nameAr : b.nameEn) : id; };
 
@@ -195,6 +221,8 @@ function fillBranchSelects() {
 }
 function rerender() {
   applyChrome();
+  $('#typeSegWrap').innerHTML = typeSegHtml('typeSeg', S.typeFilter);
+  $('#reportTypeWrap').innerHTML = typeSegHtml('reportTypeSeg', S.reportType);
   if (!S.user) return;
   renderRecent();
   if (S.view === 'history') { renderHistory(); if (lastSearch) searchDay(lastSearch, false); }
@@ -227,6 +255,7 @@ function showLogin() {
   S.user = null;
   $('#app').hidden = true; $('#login').hidden = false;
   if ($('#entry').open) $('#entry').close();
+  if ($('#userDlg').open) $('#userDlg').close();
   applyChrome();
   setTimeout(() => $('#loginForm [name=username]').focus(), 50);
 }
@@ -277,9 +306,9 @@ async function renderRecent() {
   ul.innerHTML = list.map(tx => `
     <li>
       <span class="kind kind-${tx.type}">${t(tx.type)}</span>
-      <span class="recent-items">${esc(tx.items.map(i => `${i.name} × ${i.qty}`).join('، '))}</span>
+      <span class="recent-items" title="${esc(tx.items.map(i => `${i.name} × ${i.qty}`).join('، '))}">${esc(tx.items.map(i => `${i.name} × ${i.qty}`).join('، '))}</span>
       <span class="recent-time">${fmtTime(new Date(tx.at))}</span>
-      <strong>${money(tx.total, tx.currency)}</strong>
+      <strong class="recent-sum">${money(tx.total, tx.currency)}</strong>
     </li>`).join('');
 }
 async function loadItemNames() {
@@ -294,17 +323,18 @@ function setEntryTitle() {
   $('#entrySave').textContent = sell ? t('saveSale') : t('savePurchase');
   $('#entryCur').textContent = `${t('cur')[S.currency]} ${t('curName')[S.currency]}`;
   $$('#lines .n').forEach(i => { i.placeholder = t('itemPh'); });
+  $$('#lines .line').forEach(l => { ['item', 'qty', 'price', 'subtotal'].forEach((k, i) => { l.querySelectorAll('.cap')[i].textContent = t(k); }); });
 }
 function lineTpl() {
   const step = S.currency === 'USD' ? '0.01' : '250';
   const div = document.createElement('div');
   div.className = 'line';
   div.innerHTML = `
-    <input class="field n" list="itemNames" maxlength="120" placeholder="${esc(t('itemPh'))}" aria-label="${esc(t('item'))}">
-    <input class="field num q" type="number" min="0" step="any" value="1" inputmode="decimal" aria-label="${esc(t('qty'))}">
-    <input class="field num p" type="number" min="0" step="${step}" inputmode="decimal" aria-label="${esc(t('price'))}">
-    <span class="sub money">${esc(fmt(0))}</span>
-    <button type="button" class="rm" aria-label="×">×</button>`;
+    <label class="cell c-n"><span class="cap">${esc(t('item'))}</span><input class="field n" list="itemNames" maxlength="120" placeholder="${esc(t('itemPh'))}" autocomplete="off"></label>
+    <label class="cell c-q"><span class="cap">${esc(t('qty'))}</span><input class="field num q" type="number" min="0" step="any" value="1" inputmode="decimal"></label>
+    <label class="cell c-p"><span class="cap">${esc(t('price'))}</span><input class="field num p" type="number" min="0" step="${step}" inputmode="decimal"></label>
+    <div class="cell c-sub"><span class="cap">${esc(t('subtotal'))}</span><span class="sub money">${esc(fmt(0))}</span></div>
+    <button type="button" class="rm" aria-label="${esc(t('del'))}" title="${esc(t('del'))}">×</button>`;
   return div;
 }
 function addLine(focus = true) {
@@ -409,11 +439,23 @@ function sumUp(list) {
   for (const tx of list) { const v = conv(tx.total, tx.currency, tx.rate); if (tx.type === 'sell') sales += v; else buys += v; }
   return { sales, buys, net: sales - buys, count: list.length };
 }
-function totalsHtml(s) {
-  return `
-    <div class="total-cell sell"><div class="lbl">${t('totalSales')}</div><div class="val">${money(s.sales)}</div></div>
-    <div class="total-cell buy"><div class="lbl">${t('totalBuys')}</div><div class="val">${money(s.buys)}</div></div>
-    <div class="total-cell"><div class="lbl">${t('net')}</div><div class="val ${s.net < 0 ? 'neg' : ''}">${money(s.net)}</div></div>`;
+// type filter: 'all' | 'sell' | 'buy'
+const byType = (list, type) => (type === 'all' ? list : list.filter(tx => tx.type === type));
+function totalsCells(s, type = 'all', withCount = false) {
+  const cells = [];
+  if (type !== 'buy') cells.push(`<div class="total-cell sell"><div class="lbl">${t('totalSales')}</div><div class="val">${money(s.sales)}</div></div>`);
+  if (type !== 'sell') cells.push(`<div class="total-cell buy"><div class="lbl">${t('totalBuys')}</div><div class="val">${money(s.buys)}</div></div>`);
+  if (type === 'all') cells.push(`<div class="total-cell"><div class="lbl">${t('net')}</div><div class="val ${s.net < 0 ? 'neg' : ''}">${money(s.net)}</div></div>`);
+  if (withCount || type !== 'all') cells.push(`<div class="total-cell"><div class="lbl">${t('entriesCount')}</div><div class="val">${s.count}</div></div>`);
+  return cells;
+}
+const totalsBox = (s, type, withCount) => { const c = totalsCells(s, type, withCount); return `<div class="totals" style="--cols:${c.length}">${c.join('')}</div>`; };
+function typeSegHtml(id, value) {
+  return `<div class="seg type-seg" id="${id}" role="tablist" aria-label="${esc(t('showType'))}">` +
+    [['all', 'typeAll'], ['sell', 'typeSell'], ['buy', 'typeBuy']].map(([v, k]) => `<button type="button" data-type="${v}" class="${value === v ? 'is-active' : ''}">${t(k)}</button>`).join('') + '</div>';
+}
+function historyExportHref() {
+  return `/api/export.csv?branch=${S.branchFilter}&type=${S.typeFilter}&name=alrayhan-${S.typeFilter === 'all' ? 'sales' : S.typeFilter === 'sell' ? 'sales-only' : 'purchases-only'}`;
 }
 function txHtml(tx) {
   const d = new Date(tx.at);
@@ -428,26 +470,31 @@ function txHtml(tx) {
       </div>
       <ul class="tx-items">${tx.items.map(i => `<li><span>${esc(i.name)} <span class="q">× ${i.qty} ${S.lang === 'ar' ? 'بسعر' : '@'} ${esc(fmt(i.price, tx.currency))}</span></span>${money(i.subtotal, tx.currency)}</li>`).join('')}</ul>
       ${tx.note ? `<p class="tx-note">${esc(tx.note)}</p>` : ''}
-      ${S.user?.role === 'master' ? `<div class="tx-actions"><button class="btn btn-danger js-del" data-id="${tx.id}">${t('del')}</button></div>` : ''}
+      ${isManager() ? `<div class="tx-actions"><button class="btn btn-danger js-del" data-id="${tx.id}">${t('del')}</button></div>` : ''}
     </div>`;
 }
 function renderHistory() {
   $$('#periodSeg button').forEach(b => b.classList.toggle('is-active', b.dataset.period === S.period));
+  $$('#typeSeg button').forEach(b => b.classList.toggle('is-active', b.dataset.type === S.typeFilter));
+  $('#view-history').dataset.type = S.typeFilter;
+  $('#histExport').href = historyExportHref();
+  const shown = byType(S.history, S.typeFilter);
   const groups = new Map();
-  for (const tx of S.history) { const k = periodKey(new Date(tx.at)); if (!groups.has(k)) groups.set(k, []); groups.get(k).push(tx); }
+  for (const tx of shown) { const k = periodKey(new Date(tx.at)); if (!groups.has(k)) groups.set(k, []); groups.get(k).push(tx); }
   const keys = [...groups.keys()].sort().reverse();
-  $('#totals').innerHTML = totalsHtml(sumUp(S.history));
+  { const c = totalsCells(sumUp(shown), S.typeFilter); $('#totals').style.setProperty('--cols', c.length); $('#totals').innerHTML = c.join(''); }
   $('#histTitle').textContent = S.period === 'day' ? t('lastDays') : S.period === 'week' ? t('lastWeeks') : t('lastMonths');
   const tb = $('#periodTable tbody');
   if (!keys.length) { tb.innerHTML = `<tr class="empty-row"><td colspan="5">${t('noData')}</td></tr>`; return; }
   tb.innerHTML = keys.map(k => {
     const list = groups.get(k); const s = sumUp(list); const open = S.openPeriod === k;
     const row = `<tr class="period ${open ? 'is-open' : ''}" data-key="${k}" tabindex="0" aria-expanded="${open}">
-      <td>${esc(periodLabel(k))}</td><td class="money">${esc(fmt(s.sales))}</td><td class="money">${esc(fmt(s.buys))}</td>
-      <td class="money ${s.net < 0 ? 'neg' : ''}">${esc(fmt(s.net))}</td><td class="num">${s.count}</td></tr>`;
+      <td>${esc(periodLabel(k))}</td><td class="money c-sales">${esc(fmt(s.sales))}</td><td class="money c-buys">${esc(fmt(s.buys))}</td>
+      <td class="money c-net ${s.net < 0 ? 'neg' : ''}">${esc(fmt(s.net))}</td><td class="num">${s.count}</td></tr>`;
     const detail = open ? `<tr class="detail"><td colspan="5"><div class="tx-list">${[...list].reverse().map(txHtml).join('')}</div></td></tr>` : '';
     return row + detail;
   }).join('');
+  labelTables($('#view-history'));
 }
 $('#periodTable').addEventListener('click', e => {
   const del = e.target.closest('.js-del'); if (del) return deleteTx(del.dataset.id);
@@ -457,6 +504,12 @@ $('#periodTable').addEventListener('click', e => {
 $('#periodTable').addEventListener('keydown', e => { if ((e.key === 'Enter' || e.key === ' ') && e.target.matches('tr.period')) { e.preventDefault(); e.target.click(); } });
 $$('#periodSeg button').forEach(b => b.addEventListener('click', () => { S.period = b.dataset.period; S.openPeriod = null; loadHistory(); }));
 $('#branchFilter').addEventListener('change', e => { S.branchFilter = e.target.value; loadHistory(); });
+$('#typeSegWrap').innerHTML = typeSegHtml('typeSeg', S.typeFilter);
+$('#typeSegWrap').addEventListener('click', e => {
+  const b = e.target.closest('button[data-type]'); if (!b) return;
+  S.typeFilter = b.dataset.type; setPref('type', S.typeFilter); S.openPeriod = null;
+  renderHistory(); if (lastSearch) searchDay(lastSearch, false);
+});
 
 async function searchDay(value, scroll = true) {
   lastSearch = value;
@@ -467,7 +520,8 @@ async function searchDay(value, scroll = true) {
   catch (err) { toast(errText(err)); return; }
   const box = $('#dayDetail');
   box.className = 'day-detail';
-  box.innerHTML = `<h2>${esc(t('dayOf', fmtDate(from)))}</h2><div class="totals">${totalsHtml(sumUp(list))}</div>
+  list = byType(list, S.typeFilter);
+  box.innerHTML = `<h2>${esc(t('dayOf', fmtDate(from)))}${S.typeFilter === 'all' ? '' : ` — ${t(S.typeFilter === 'sell' ? 'onlySales' : 'onlyBuys')}`}</h2>${totalsBox(sumUp(list), S.typeFilter)}
     <div class="tx-list">${list.length ? [...list].reverse().map(txHtml).join('') : `<p class="muted">${t('noData')}</p>`}</div>`;
   if (scroll) box.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
@@ -489,11 +543,12 @@ async function renderSettings() {
     </div>`).join('') + `<div><button class="btn btn-primary">${t('saveBranches')}</button></div>`;
   let users = [];
   try { users = await api('/users'); } catch (err) { toast(errText(err)); }
+  S.users = users;
   $('#usersTable tbody').innerHTML = users.map(u => `
     <tr>
       <td>${esc(u.name)} ${u.id === S.user.id ? `<span class="muted">${t('you')}</span>` : ''}</td>
-      <td dir="ltr" style="text-align:start">${esc(u.username)}</td>
-      <td>${u.id === S.user.id ? `<span class="role-tag ${u.role}">${roleBadge(u.role)}</span>` : `
+      <td class="uname"><bdi dir="ltr">${esc(u.username)}</bdi></td>
+      <td>${u.id === S.user.id || u.role === 'service' ? `<span class="role-tag ${u.role}">${roleBadge(u.role)}</span>` : `
         <select class="field js-role" data-id="${u.id}" aria-label="${esc(t('role'))}">
           ${['seller', 'supervisor', 'master'].map(r => `<option value="${r}" ${u.role === r ? 'selected' : ''}>${roleBadge(r)}</option>`).join('')}
         </select>`}</td>
@@ -502,11 +557,12 @@ async function renderSettings() {
           ${S.settings.branches.map(b => `<option value="${b.id}" ${u.branch === b.id ? 'selected' : ''}>${esc(S.lang === 'ar' ? b.nameAr : b.nameEn)}</option>`).join('')}
           <option value="" ${u.branch ? '' : 'selected'}>${t('anyBranch')}</option>
         </select>` : `<span class="muted">${t('allBranchesShort')}</span>`}</td>
-      <td><div class="user-actions">
-        <button class="btn btn-ghost js-pw" data-id="${u.id}">${t('changePw')}</button>
+      <td class="actions"><div class="user-actions">
+        <button class="btn btn-ghost btn-sm js-uedit" data-id="${u.id}">${t('edit')}</button>
         ${u.id === S.user.id ? '' : `<button class="btn btn-danger js-udel" data-id="${u.id}" data-name="${esc(u.name)}">${t('del')}</button>`}
       </div></td>
     </tr>`).join('');
+  labelTables($('#usersTable'));
 }
 async function saveSettings(body) {
   try { S.settings = await api('/settings', { method: 'PUT', body }); applyChrome(); toast(t('saved')); }
@@ -523,12 +579,42 @@ $('#logoInput').addEventListener('change', e => {
   const r = new FileReader(); r.onload = () => saveSettings({ logo: r.result }); r.readAsDataURL(file); e.target.value = '';
 });
 $('#logoReset').addEventListener('click', () => saveSettings({ logo: null }));
+// edit a user: display name, login username and (optionally) a new password
+const userDlg = $('#userDlg');
+function openUserEdit(id) {
+  const u = (S.users || []).find(x => x.id === id); if (!u) return;
+  const f = $('#userEditForm');
+  f.dataset.id = u.id;
+  f.name.value = u.name || ''; f.username.value = u.username; f.password.value = '';
+  $('#userEditError').textContent = '';
+  $('#userEditRole').textContent = roleBadge(u.role);
+  $('#userEditRole').className = `role-tag ${u.role}`;
+  userDlg.showModal();
+  f.name.focus();
+}
+$('#userEditCancel').addEventListener('click', () => userDlg.close());
+$('#userEditForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const f = e.target, id = f.dataset.id;
+  const u = (S.users || []).find(x => x.id === id); if (!u) return;
+  const body = {};
+  if (f.name.value.trim() !== (u.name || '')) body.name = f.name.value;
+  if (f.username.value.trim().toLowerCase() !== u.username) body.username = f.username.value;
+  if (f.password.value) body.password = f.password.value;
+  if (!Object.keys(body).length) { userDlg.close(); return; }
+  const btn = $('#userEditSave'); btn.disabled = true;
+  try {
+    const saved = await api('/users/' + id, { method: 'PUT', body });
+    userDlg.close();
+    toast(body.password ? `${t('userSaved')} · ${t('pwChanged')}` : t('userSaved'));
+    if (id === S.user.id) { S.user = { ...S.user, ...saved }; applyChrome(); }
+    renderSettings();
+  } catch (err) { $('#userEditError').textContent = errText(err); }
+  finally { btn.disabled = false; }
+});
 $('#usersTable').addEventListener('click', async e => {
-  const pw = e.target.closest('.js-pw'), del = e.target.closest('.js-udel');
-  if (pw) {
-    const v = prompt(t('newPwPrompt')); if (v === null) return;
-    try { await api('/users/' + pw.dataset.id, { method: 'PUT', body: { password: v } }); toast(t('pwChanged')); } catch (err) { toast(errText(err)); }
-  }
+  const edit = e.target.closest('.js-uedit'), del = e.target.closest('.js-udel');
+  if (edit) openUserEdit(edit.dataset.id);
   if (del) {
     if (!confirm(t('confirmUserDel', del.dataset.name))) return;
     try { await api('/users/' + del.dataset.id, { method: 'DELETE' }); toast(t('userDeleted')); renderSettings(); } catch (err) { toast(errText(err)); }
@@ -570,7 +656,7 @@ async function makeReport() {
   const btn = $('#reportGo'); btn.disabled = true;
   try {
     const list = await api(`/transactions?from=${encodeURIComponent(from.toISOString())}&to=${encodeURIComponent(to.toISOString())}&branch=${S.reportBranch}`);
-    S.report = { period: S.reportPeriod, branch: S.reportBranch, from, to, list, at: new Date() };
+    S.report = { period: S.reportPeriod, branch: S.reportBranch, from, to, all: list, at: new Date() };
     renderReport();
   } catch (err) { toast(errText(err)); }
   finally { btn.disabled = false; }
@@ -581,18 +667,19 @@ function groupSum(list, keyFn) {
   return [...m.entries()].map(([k, l]) => ({ key: k, ...sumUp(l) }));
 }
 function sumRows(rows, labelFn) {
-  return rows.map(r => `<tr><td>${esc(labelFn(r.key))}</td><td class="money">${esc(fmt(r.sales))}</td><td class="money">${esc(fmt(r.buys))}</td>
-    <td class="money ${r.net < 0 ? 'neg' : ''}">${esc(fmt(r.net))}</td><td class="num">${r.count}</td></tr>`).join('');
+  return rows.map(r => `<tr><td>${esc(labelFn(r.key))}</td><td class="money c-sales">${esc(fmt(r.sales))}</td><td class="money c-buys">${esc(fmt(r.buys))}</td>
+    <td class="money c-net ${r.net < 0 ? 'neg' : ''}">${esc(fmt(r.net))}</td><td class="num">${r.count}</td></tr>`).join('');
 }
 function sumTable(title, firstCol, rows, labelFn) {
-  return `<h3>${title}</h3><div class="table-wrap"><table class="table"><thead><tr><th>${firstCol}</th><th class="money">${t('colSales')}</th>
-    <th class="money">${t('colBuys')}</th><th class="money">${t('colNet')}</th><th class="num">${t('colCount')}</th></tr></thead>
+  return `<h3>${title}</h3><div class="table-wrap"><table class="table"><thead><tr><th>${firstCol}</th><th class="money c-sales">${t('colSales')}</th>
+    <th class="money c-buys">${t('colBuys')}</th><th class="money c-net">${t('colNet')}</th><th class="num">${t('colCount')}</th></tr></thead>
     <tbody>${rows.length ? sumRows(rows, labelFn) : `<tr class="empty-row"><td colspan="5">${t('noData')}</td></tr>`}</tbody></table></div>`;
 }
 function renderReport() {
   const R = S.report; if (!R) return;
-  const list = R.list, s = sumUp(list);
-  const title = R.period === 'day' ? t('dailyReport') : R.period === 'week' ? t('weeklyReport') : t('monthlyReport');
+  const type = S.reportType, list = byType(R.all, type), s = sumUp(list);
+  const title = (R.period === 'day' ? t('dailyReport') : R.period === 'week' ? t('weeklyReport') : t('monthlyReport'))
+    + (type === 'all' ? '' : ` (${t(type === 'sell' ? 'onlySales' : 'onlyBuys')})`);
   const branchTxt = R.branch === 'all' ? t('allBranches') : branchName(R.branch);
   const logo = S.settings?.logo || 'logo.svg';
   const shop = S.lang === 'ar' ? S.settings.shopNameAr : S.settings.shopName;
@@ -603,17 +690,18 @@ function renderReport() {
   const dayLabel = k => { const [y, m, d] = k.split('-').map(Number); return fmtDate(new Date(y, m - 1, d), { weekday: 'long', day: 'numeric', month: 'short' }); };
 
   const items = new Map();
-  for (const tx of list) if (tx.type === 'sell') for (const it of tx.items) {
+  const itemType = type === 'buy' ? 'buy' : 'sell';
+  for (const tx of list) if (tx.type === itemType) for (const it of tx.items) {
     const k = it.name.toLowerCase(); const cur = items.get(k) || { name: it.name, qty: 0, amount: 0 };
     cur.qty += it.qty; cur.amount += conv(it.subtotal, tx.currency, tx.rate); items.set(k, cur);
   }
   const top = [...items.values()].sort((a, b) => b.amount - a.amount).slice(0, 15);
 
-  const csv = `/api/export.csv?from=${encodeURIComponent(R.from.toISOString())}&to=${encodeURIComponent(R.to.toISOString())}&branch=${R.branch}&name=alrayhan-${R.period}-report-${dayKey(R.from)}`;
+  const csv = `/api/export.csv?from=${encodeURIComponent(R.from.toISOString())}&to=${encodeURIComponent(R.to.toISOString())}&branch=${R.branch}&type=${type}&name=alrayhan-${R.period}-report-${type === 'all' ? '' : type === 'sell' ? 'sales-' : 'purchases-'}${dayKey(R.from)}`;
   const nf = new Intl.NumberFormat('en-US');
 
   $('#report').innerHTML = `
-  <article class="report">
+  <article class="report" data-type="${type}">
     <header class="report-head">
       <img src="${esc(logo)}" alt="">
       <div>
@@ -627,17 +715,14 @@ function renderReport() {
       </div>
     </header>
 
-    <div class="totals">
-      ${totalsHtml(s)}
-      <div class="total-cell"><div class="lbl">${t('entriesCount')}</div><div class="val">${s.count}</div></div>
-    </div>
+    ${totalsBox(s, type, true)}
 
     ${R.branch === 'all' ? sumTable(t('byBranch'), t('colBranch'), byBranch, branchName) : ''}
     ${sumTable(t('bySeller'), t('colUser'), byUser, k => k)}
     ${R.period === 'day' ? '' : sumTable(t('byDay'), t('colDay'), byDay, dayLabel)}
 
-    <h3>${t('topItems')}</h3>
-    <div class="table-wrap"><table class="table"><thead><tr><th>${t('item')}</th><th class="num">${t('colQtySold')}</th><th class="money">${t('colAmount')}</th></tr></thead>
+    <h3>${t(itemType === 'buy' ? 'topBought' : 'topItems')}</h3>
+    <div class="table-wrap"><table class="table"><thead><tr><th>${t('item')}</th><th class="num">${t(itemType === 'buy' ? 'colQtyBought' : 'colQtySold')}</th><th class="money">${t('colAmount')}</th></tr></thead>
       <tbody>${top.length ? top.map(i => `<tr><td>${esc(i.name)}</td><td class="num">${nf.format(i.qty)}</td><td class="money">${esc(fmt(i.amount))}</td></tr>`).join('')
         : `<tr class="empty-row"><td colspan="3">${t('noData')}</td></tr>`}</tbody></table></div>
 
@@ -656,6 +741,7 @@ function renderReport() {
 
     <p class="report-foot">${esc(t('reportCurrency', t('curName')[S.currency], nf.format(S.settings.rate)))}</p>
   </article>`;
+  labelTables($('#report'));
   $('#reportPrint').addEventListener('click', () => window.print());
 }
 $$('#reportSeg button').forEach(b => b.addEventListener('click', () => {
@@ -666,6 +752,13 @@ $$('#reportSeg button').forEach(b => b.addEventListener('click', () => {
 $('#reportBranch').addEventListener('change', e => { S.reportBranch = e.target.value; if (S.report) makeReport(); });
 $('#reportDate').addEventListener('change', () => { if (S.report) makeReport(); });
 $('#reportGo').addEventListener('click', makeReport);
+$('#reportTypeWrap').innerHTML = typeSegHtml('reportTypeSeg', S.reportType);
+$('#reportTypeWrap').addEventListener('click', e => {
+  const b = e.target.closest('button[data-type]'); if (!b) return;
+  S.reportType = b.dataset.type; setPref('rtype', S.reportType);
+  $$('#reportTypeSeg button').forEach(x => x.classList.toggle('is-active', x === b));
+  if (S.report) renderReport();
+});
 
 // ---------- install as app (PWA) ----------
 let installPrompt = null;

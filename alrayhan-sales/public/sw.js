@@ -4,7 +4,7 @@
    so every device sees the same, current records. */
 'use strict';
 
-const CACHE = 'ars-shell-v2';
+const CACHE = 'ars-shell-v3';
 const SHELL = [
   '/', '/index.html', '/style.css', '/app.js', '/logo.svg', '/manifest.webmanifest',
   '/icons/icon-192.png', '/icons/icon-512.png',

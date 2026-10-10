@@ -102,12 +102,13 @@
           <button data-period="week" data-t="weekly"></button>
           <button data-period="month" data-t="monthly"></button>
         </div>
+        <div id="typeSegWrap"></div>
         <select id="branchFilter" class="field"></select>
         <form class="date-search" id="dateSearch">
           <input type="date" id="searchDate" class="field" required>
           <button class="btn btn-primary" type="submit" data-t="search"></button>
         </form>
-        <a class="btn btn-ghost" href="/api/export.csv" data-t="exportCsv"></a>
+        <a class="btn btn-ghost" id="histExport" href="/api/export.csv" data-t="exportCsv"></a>
       </div>
 
       <div class="totals" id="totals"></div>
@@ -115,7 +116,7 @@
       <div class="table-wrap">
         <table class="table" id="periodTable">
           <thead><tr>
-            <th data-t="colPeriod"></th><th class="money" data-t="colSales"></th><th class="money" data-t="colBuys"></th><th class="money" data-t="colNet"></th><th class="num" data-t="colCount"></th>
+            <th data-t="colPeriod"></th><th class="money c-sales" data-t="colSales"></th><th class="money c-buys" data-t="colBuys"></th><th class="money c-net" data-t="colNet"></th><th class="num" data-t="colCount"></th>
           </tr></thead>
           <tbody></tbody>
         </table>
@@ -131,6 +132,7 @@
           <button data-period="week" data-t="weeklyReport"></button>
           <button data-period="month" data-t="monthlyReport"></button>
         </div>
+        <div id="reportTypeWrap"></div>
         <label class="ctl"><span data-t="reportFor"></span><input type="date" id="reportDate" class="field" required></label>
         <select id="reportBranch" class="field js-branch-filter"></select>
         <button class="btn btn-primary" id="reportGo" type="button" data-t="makeReport"></button>
@@ -220,6 +222,24 @@
         <button type="submit" class="btn btn-primary" id="entrySave"></button>
       </div>
     </footer>
+  </form>
+</dialog>
+
+<!-- Edit a user (name, login username, password) -->
+<dialog id="userDlg" class="user-dlg">
+  <form id="userEditForm" autocomplete="off">
+    <header class="user-dlg-head">
+      <h2 data-t="editUser"></h2>
+      <span id="userEditRole" class="role-tag"></span>
+    </header>
+    <label><span data-t="name"></span><input name="name" class="field" maxlength="40" required></label>
+    <label><span data-t="username"></span><input name="username" class="field" dir="ltr" maxlength="30" required pattern="[A-Za-z0-9_.\-]{3,30}" autocapitalize="none" spellcheck="false"><small class="muted" data-t="usernameHint"></small></label>
+    <label><span data-t="newPassword"></span><input name="password" class="field" type="password" minlength="8" autocomplete="new-password"><small class="muted" data-t="newPwHint"></small></label>
+    <p class="form-error" id="userEditError" role="alert"></p>
+    <div class="dlg-actions">
+      <button type="button" class="btn btn-ghost" id="userEditCancel" data-t="cancel"></button>
+      <button type="submit" class="btn btn-primary" id="userEditSave" data-t="save"></button>
+    </div>
   </form>
 </dialog>
 
