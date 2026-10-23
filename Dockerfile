@@ -1,6 +1,6 @@
 # Alrayhan Sales — Docker image
-# Node 20 LTS on Alpine; the app has no npm dependencies, so no install step is needed.
-FROM node:20-alpine
+# Node 22 LTS on Alpine; the app has no npm dependencies, so no install step is needed.
+FROM node:22-alpine
 
 ENV NODE_ENV=production \
     PORT=3000 \

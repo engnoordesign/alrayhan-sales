@@ -514,3 +514,14 @@ main { max-width: 1120px; margin: 0 auto; padding: 24px clamp(12px, 3vw, 32px) 6
 .user-dlg .form-error { margin: 0; min-height: 0; }
 .dlg-actions { display: flex; gap: 10px; justify-content: flex-end; }
 @media (max-width: 420px) { .dlg-actions .btn { flex: 1; } }
+
+/* show / hide password eye */
+.pw-wrap{ position:relative; display:block; }
+.pw-wrap > input{ width:100%; box-sizing:border-box; padding-left:46px !important; }
+.pw-eye{ all:unset; box-sizing:border-box; position:absolute; top:50%; left:6px; right:auto; transform:translateY(-50%);
+  width:36px; height:36px; display:flex; align-items:center; justify-content:center; border-radius:50%;
+  cursor:pointer; color:inherit; opacity:.6; font-size:0; transition:opacity .15s, background-color .15s; }
+.pw-eye:hover{ opacity:1; background-color:rgba(127,127,127,.12); }
+.pw-eye:focus-visible{ outline:2px solid currentColor; outline-offset:1px; opacity:1; }
+.pw-eye[aria-pressed="true"]{ opacity:.95; }
+.pw-eye svg{ display:block; width:20px; height:20px; pointer-events:none; }

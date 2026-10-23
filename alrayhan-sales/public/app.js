@@ -801,3 +801,53 @@ if ('serviceWorker' in navigator && window.isSecureContext) {
   try { const { user } = await api('/me'); await enterApp(user); }
   catch { showLogin(); }
 })();
+
+/* show / hide password: an eye button inside every password box (also boxes added later) */
+(function(){
+  var ICON = {
+    show: '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1.5 12S5.5 4.5 12 4.5 22.5 12 22.5 12 18.5 19.5 12 19.5 1.5 12 1.5 12z"/><circle cx="12" cy="12" r="3.2"/></svg>',
+    hide: '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.6 5.1A10.7 10.7 0 0 1 12 5c6.5 0 10.5 7 10.5 7a17.6 17.6 0 0 1-3.1 3.9M6.6 6.6C3.4 8.6 1.5 12 1.5 12S5.5 19 12 19c1.9 0 3.6-.6 5-1.5"/><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/><path d="M3 3l18 18"/></svg>'
+  };
+  function arabic(){ return (document.documentElement.lang || 'ar').slice(0, 2) !== 'en'; }
+  function paint(btn, input){
+    var shown = input.type === 'text';
+    btn.innerHTML = shown ? ICON.hide : ICON.show;
+    var label = shown ? (arabic() ? 'إخفاء كلمة المرور' : 'Hide password')
+                      : (arabic() ? 'إظهار كلمة المرور' : 'Show password');
+    btn.setAttribute('aria-label', label);
+    btn.title = label;
+    btn.setAttribute('aria-pressed', shown ? 'true' : 'false');
+  }
+  function add(input){
+    if (input.getAttribute('data-pw-eye')) return;
+    input.setAttribute('data-pw-eye', '1');
+    var wrap = input.parentElement;
+    var btn = wrap && wrap.classList.contains('pw-wrap') ? wrap.querySelector('.pw-eye') : null;
+    if (!btn) {
+      wrap = document.createElement('span');
+      wrap.className = 'pw-wrap';
+      input.parentNode.insertBefore(wrap, input);
+      wrap.appendChild(input);
+      btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'pw-eye';
+      btn.addEventListener('click', function(){ input.type = input.type === 'password' ? 'text' : 'password'; });
+      wrap.appendChild(btn);
+    }
+    // repaint after every toggle (runs after the page's own toggle where one already exists)
+    btn.addEventListener('click', function(){ paint(btn, input); input.focus(); });
+    if (input.form) input.form.addEventListener('submit', function(){
+      if (input.type === 'text') { input.type = 'password'; paint(btn, input); }
+    });
+    paint(btn, input);
+  }
+  function scan(){
+    var list = document.querySelectorAll('input[type="password"]:not([data-pw-eye])');
+    for (var i = 0; i < list.length; i++) add(list[i]);
+  }
+  function start(){
+    scan();
+    new MutationObserver(scan).observe(document.body, { childList: true, subtree: true });
+  }
+  if (document.body) start(); else document.addEventListener('DOMContentLoaded', start);
+})();
